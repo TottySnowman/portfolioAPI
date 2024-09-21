@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"os"
 	project_routes "portfolioAPI/project/router"
 
@@ -16,7 +17,10 @@ func SetupRouter(router *gin.Engine) {
 
 func setupCors(router *gin.Engine) {
 	corsOrigin0 := os.Getenv("CORS_ORIGIN0")
+
+  fmt.Printf(corsOrigin0)
 	corsOrigin1 := os.Getenv("CORS_ORIGIN1")
+  fmt.Printf(corsOrigin1)
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{corsOrigin0, corsOrigin1},
