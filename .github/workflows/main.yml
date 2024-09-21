@@ -23,6 +23,18 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD_PORTFOLIO }}
           registry: reg.paul-wortmann.me
 
+      - name: Create .env file
+        run: | 
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_CHARSET=${{ secrets.CHARSET }}" >> .env
+          echo "DB_CORS_ORIGIN0=${{ secrets.CORS_ORIGIN0 }}" >> .env
+          echo "DB_CORS_ORIGIN1=${{ secrets.CORS_ORIGIN1 }}" >> .env
+          
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
