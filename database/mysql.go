@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	projectModel "portfolioAPI/project/models"
 	"sync"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var (
@@ -33,10 +35,17 @@ func initMySql() {
 		dbUser, dbPassword, dbHost, dbPort, dbName, dbCharset)
 
   log.Printf(dsn)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+    NamingStrategy: schema.NamingStrategy{
+      SingularTable: true,
+      NoLowerCase: true,
+    },
+  })
 	if err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
+
+  db.AutoMigrate(&projectModel.Project{}, &projectModel.Tag{}, &projectModel.ProjectStatus{})
 
 	fmt.Println("Database connection successful!")
 	database = db

@@ -15,6 +15,6 @@ func NewProjectService() *ProjectService {
 	}
 }
 
-func (service *ProjectService) GetAllProjects() []projectModel.Project {
+func (service *ProjectService) GetAllProjects() []projectModel.ProjectDisplay {
 	return service.repository.GetAllProjects()
 }
