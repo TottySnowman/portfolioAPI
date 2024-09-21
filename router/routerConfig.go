@@ -15,10 +15,11 @@ func SetupRouter(router *gin.Engine) {
 }
 
 func setupCors(router *gin.Engine) {
-	corsOrigin := os.Getenv("CORS_ORIGIN")
+	corsOrigin0 := os.Getenv("CORS_ORIGIN0")
+	corsOrigin1 := os.Getenv("CORS_ORIGIN1")
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{corsOrigin},
+		AllowOrigins:     []string{corsOrigin0, corsOrigin1},
 		AllowMethods:     []string{"GET"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
