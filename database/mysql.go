@@ -34,7 +34,6 @@ func initMySql() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local",
 		dbUser, dbPassword, dbHost, dbPort, dbName, dbCharset)
 
-  log.Printf(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
     NamingStrategy: schema.NamingStrategy{
       SingularTable: true,
