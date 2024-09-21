@@ -28,4 +28,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: reg.paul-wortmann.me/portfolio_api:latest
+          tags: reg.paul-wortmann.me/portfolio_api/portfolio_api:latest
