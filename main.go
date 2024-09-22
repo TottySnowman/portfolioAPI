@@ -4,9 +4,10 @@ import (
 	"log"
 	"os"
 
+	routerConfig "portfolioAPI/router"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	routerConfig "portfolioAPI/router"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 	}
 
 	router := gin.Default()
+
 	routerConfig.SetupRouter(router)
 	serverPort := os.Getenv("SERVER_PORT")
 
