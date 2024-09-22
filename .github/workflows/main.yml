@@ -31,8 +31,9 @@ jobs:
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_CHARSET=${{ secrets.CHARSET }}" >> .env
-          echo "DB_CORS_ORIGIN0=${{ secrets.CORS_ORIGIN0 }}" >> .env
-          echo "DB_CORS_ORIGIN1=${{ secrets.CORS_ORIGIN1 }}" >> .env
+          echo "CORS_ORIGIN0=${{ secrets.CORS_ORIGIN0 }}" >> .env
+          echo "CORS_ORIGIN1=${{ secrets.CORS_ORIGIN1 }}" >> .env
+          echo "GIN_MODE=${{ secrets.GIN_MODE }}" >> .env
           
 
       - name: Build and push Docker image
@@ -40,4 +41,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: reg.paul-wortmann.me/portfolio_api/portfolio_api:latest
+          tags: | 
+            reg.paul-wortmann.me/portfolio_api/portfolio_api:latest
+            reg.paul-wortmann.me/portfolio_api/portfolio_api:${{ github.sha }}
