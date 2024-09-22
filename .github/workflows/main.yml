@@ -34,6 +34,7 @@ jobs:
           echo "CORS_ORIGIN0=${{ secrets.CORS_ORIGIN0 }}" >> .env
           echo "CORS_ORIGIN1=${{ secrets.CORS_ORIGIN1 }}" >> .env
           echo "GIN_MODE=${{ secrets.GIN_MODE }}" >> .env
+          echo "GIN_MODE=${{ secrets.DB_DSN }}" >> .env
           
 
       - name: Build and push Docker image
