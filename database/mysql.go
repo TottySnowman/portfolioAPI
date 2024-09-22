@@ -24,19 +24,8 @@ func initMySql() {
 		log.Fatalf("Error loading .env file")
 	}
 
-  dbUser := os.Getenv("DB_USER")
-  dbPassword := os.Getenv("DB_PASSWORD")
-  dbHost := os.Getenv("DB_HOST")
-  dbName := os.Getenv("DB_NAME")
-  dbCharset := os.Getenv("DB_CHARSET")
-  dbPort := os.Getenv("DB_PORT")
-  	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local",
-		dbUser, dbPassword, dbHost, dbPort, dbName, dbCharset)
-  fmt.Println(dsn)
-
-  ndsn := os.Getenv("DB_DSN")
-  fmt.Println(ndsn)
-	db, err := gorm.Open(mysql.Open(ndsn), &gorm.Config{
+  databaseURL := os.Getenv("DB_DSN")
+	db, err := gorm.Open(mysql.Open(databaseURL), &gorm.Config{
     NamingStrategy: schema.NamingStrategy{
       SingularTable: true,
       NoLowerCase: true,

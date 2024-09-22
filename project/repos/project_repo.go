@@ -4,6 +4,7 @@ import (
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
 
+  "os"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +31,8 @@ func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
 		return nil
 	}
 
+  apiURL := os.Getenv("API_ENDPOINT_URL") 
+
 	projectMap := make(map[int]*projectModel.ProjectDisplay)
 	for _, project := range projects {
     if _, exists := projectMap[project.ProjectID]; !exists{
@@ -40,7 +43,7 @@ func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
         Status: project.Status,
         Github_Link: project.GithubLink,
         Demo_Link: project.DemoLink,
-        Logo_Path: project.LogoPath,
+        Logo_Path: apiURL + project.LogoPath,
         Tags: []projectModel.JsonTag{},
       }
     }
