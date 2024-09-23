@@ -44,6 +44,7 @@ type ProjectDataSelect struct{
   LogoPath string
   TagIcon string
   Tag string
+  DevDate time.Time
 }
 
 type JsonTag struct {
@@ -60,4 +61,5 @@ type ProjectDisplay struct{
   Demo_Link string
   Logo_Path string
   Tags []JsonTag
+  DevDate time.Time
 }

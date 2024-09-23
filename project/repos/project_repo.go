@@ -3,8 +3,8 @@ package project_repo
 import (
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
-
-  "os"
+	"sort"
+	"os"
 	"gorm.io/gorm"
 )
 
@@ -19,43 +19,62 @@ func NewProjectRepo() *Project_Repo {
 }
 
 func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
-	var projects []projectModel.ProjectDataSelect
+	var selectedProjects []projectModel.ProjectDataSelect
 
-	result := repo.db.Select("Status, p.ID as ProjectID, p.Name, p.About, p.GitHubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon").Table("Project as p").
+	result := repo.db.Select("Status, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, p.DevDate").Table("Project as p").
 		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
 		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
 		Joins("inner join Tag as t ON t.ID = pt.TagID").
-		Where("Hidden = false").Order("DevDate ASC").Find(&projects)
+		Where("Hidden = false").Order("p.DevDate ASC").Find(&selectedProjects)
 
 	if result.Error != nil {
 		return nil
 	}
 
-  apiURL := os.Getenv("API_ENDPOINT_URL") 
+	projects := mapDataRowsToProjects(selectedProjects)
+
+	sortProjectsByDate(projects)
+
+	return projects
+}
+
+func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectModel.ProjectDisplay {
+
+	apiURL := os.Getenv("API_ENDPOINT_URL")
 
 	projectMap := make(map[int]*projectModel.ProjectDisplay)
 	for _, project := range projects {
-    if _, exists := projectMap[project.ProjectID]; !exists{
-      projectMap[project.ProjectID] = &projectModel.ProjectDisplay{
-        ProjectID: project.ProjectID,
-        Name: project.Name,
-        About: project.About,
-        Status: project.Status,
-        Github_Link: project.GithubLink,
-        Demo_Link: project.DemoLink,
-        Logo_Path: apiURL + project.LogoPath,
-        Tags: []projectModel.JsonTag{},
-      }
-    }
+		_, projectExists := projectMap[project.ProjectID]
 
-    projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, projectModel.JsonTag{
-      TagIcon: project.TagIcon,
-      Tag: project.Tag,
-    })
+		if !projectExists {
+			projectMap[project.ProjectID] = &projectModel.ProjectDisplay{
+				ProjectID:   project.ProjectID,
+				Name:        project.Name,
+				About:       project.About,
+				Status:      project.Status,
+				Github_Link: project.GithubLink,
+				Demo_Link:   project.DemoLink,
+				Logo_Path:   apiURL + project.LogoPath,
+				Tags:        []projectModel.JsonTag{},
+				DevDate:     project.DevDate,
+			}
+		}
+
+		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, projectModel.JsonTag{
+			TagIcon: project.TagIcon,
+			Tag:     project.Tag,
+		})
 	}
-  var responseProjects []projectModel.ProjectDisplay
+	var projectDisplay []projectModel.ProjectDisplay
 	for _, project := range projectMap {
-		responseProjects = append(responseProjects, *project)
+		projectDisplay = append(projectDisplay, *project)
 	}
-	return responseProjects
+
+	return projectDisplay
+}
+
+func sortProjectsByDate(projects []projectModel.ProjectDisplay) {
+	sort.Slice(projects, func(i, j int) bool {
+		return projects[i].DevDate.Before(projects[j].DevDate)
+	})
 }
