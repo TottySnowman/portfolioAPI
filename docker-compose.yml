@@ -1,0 +1,27 @@
+services:
+  # MySQL Service
+  mysql:
+    image: mysql:8.0
+    container_name: portfolio-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: reallyStrongRootPWD!
+      MYSQL_DATABASE: portfolio
+      MYSQL_USER: portfolioUser
+      MYSQL_PASSWORD: reallyStrongPWD!
+    ports:
+      - "3306:3306"
+    volumes:
+      - portfolioData:/var/lib/mysql
+  app:
+    build:
+      context: .  
+      dockerfile: Dockerfile  
+    container_name: go-app
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - "6001:6001"  
+volumes:
+  portfolioData:
