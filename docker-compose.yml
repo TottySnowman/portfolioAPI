@@ -19,6 +19,9 @@ services:
       dockerfile: Dockerfile  
     container_name: go-app
     restart: always
+    volumes:
+      - .:/app
+    command: ["air"]
     depends_on:
       - mysql
     ports:
