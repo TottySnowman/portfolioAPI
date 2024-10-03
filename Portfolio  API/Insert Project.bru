@@ -5,7 +5,23 @@ meta {
 }
 
 post {
-  url: http://localhost:8000/project
-  body: none
+  url: http://localhost:6001/project
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "name": "My Awesome Project",
+    "about": "This project is designed to showcase my skills in web development.",
+    "GithubLink": "https://github.com/username/my-awesome-project",
+    "DemoLink": "https://myproject-demo.com",
+    "LogoPath": "/static/images/project-logo.png",
+    "DevDate": "2023-05-06T00:00:00Z",
+    "Hidden": false,
+    "ProjectStatusID": 1,
+    "Tags": [
+      {"ID": 1}
+    ]
+  }
 }
