@@ -8,8 +8,9 @@ import (
 
 func RegisterProjectRoutes(router *gin.Engine){
   projectController := projectController.NewProjectController() 
-  routerGroup := router.Group("/project", projectController.GetAllProjects)
+  routerGroup := router.Group("/project")
   {
-    routerGroup.GET("", )
+    routerGroup.GET("", projectController.GetAllProjects)
+    routerGroup.POST("", projectController.InsertProject)
   }
 }

@@ -1,10 +1,10 @@
 package project_repo
 
 import (
+	"os"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
 	"sort"
-	"os"
 	"gorm.io/gorm"
 )
 
@@ -77,4 +77,14 @@ func sortProjectsByDate(projects []projectModel.ProjectDisplay) {
 	sort.Slice(projects, func(i, j int) bool {
 		return projects[i].DevDate.Before(projects[j].DevDate)
 	})
+}
+
+func (repo *Project_Repo) Insert(projectToCreate *projectModel.Project) error{
+	result := repo.db.Create(&projectToCreate)
+
+  if result.Error != nil{
+    return result.Error
+  }
+
+	return nil
 }

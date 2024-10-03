@@ -2,6 +2,7 @@ package projectController
 
 import (
 	"net/http"
+	projectModel "portfolioAPI/project/models"
 	projectService "portfolioAPI/project/services"
 
 	"github.com/gin-gonic/gin"
@@ -27,3 +28,18 @@ func (con *ProjectController) GetAllProjects(context *gin.Context){
   context.IndentedJSON(http.StatusOK, projects)
 }
 
+func (con *ProjectController) InsertProject(context *gin.Context){
+  var project *projectModel.Project
+
+  if err := context.ShouldBindJSON(&project); err != nil{
+    context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+    return
+  }
+
+  if err := con.service.Insert(*project); err != nil{
+    context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+    return
+  }
+  
+  context.Status(http.StatusCreated)
+}

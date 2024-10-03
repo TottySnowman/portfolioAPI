@@ -18,3 +18,7 @@ func NewProjectService() *ProjectService {
 func (service *ProjectService) GetAllProjects() []projectModel.ProjectDisplay {
 	return service.repository.GetAllProjects()
 }
+
+func(service *ProjectService) Insert(project projectModel.Project) error{
+  return service.repository.Insert(&project)
+}
