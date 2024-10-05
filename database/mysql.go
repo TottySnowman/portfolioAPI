@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	authenticationModel "portfolioAPI/authentication/models"
 	projectModel "portfolioAPI/project/models"
 	"sync"
 
@@ -35,7 +36,7 @@ func initMySql() {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
-  db.AutoMigrate(&projectModel.Project{}, &projectModel.Tag{}, &projectModel.ProjectStatus{})
+  db.AutoMigrate(&projectModel.Project{}, &projectModel.Tag{}, &projectModel.ProjectStatus{}, &authenticationModel.User{})
 
 	fmt.Println("Database connection successful!")
 	database = db
