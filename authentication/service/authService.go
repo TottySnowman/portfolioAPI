@@ -2,6 +2,7 @@ package authService
 
 import (
 	"log"
+	"os"
 	authenticationModel "portfolioAPI/authentication/models"
 	authenticationRepo "portfolioAPI/authentication/repository"
 	"time"
@@ -19,7 +20,7 @@ func NewAuthService() *AuthService {
 	}
 }
 
-func (service *AuthService) AuthenticateUser(userInput authenticationModel.LoginRequest) *authenticationModel.AuthenticationResponse {
+func (service *AuthService) AuthenticateUser(userInput *authenticationModel.LoginRequest) *authenticationModel.AuthenticationResponse {
 	authenticatedUser := service.repo.AuthenticateUser(userInput)
 	if authenticatedUser == nil {
 		return nil
@@ -33,8 +34,8 @@ func (service *AuthService) AuthenticateUser(userInput authenticationModel.Login
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-  mySigningKey := []byte("AllYourBase")
-	tokenString, err := token.SignedString(mySigningKey)
+  jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
 		log.Println(err)
 		return nil

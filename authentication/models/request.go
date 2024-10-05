@@ -1,6 +1,6 @@
 package authenticationModel
 
 type LoginRequest struct{
-  username string
-  password string
+  Username string
+  Password string
 }

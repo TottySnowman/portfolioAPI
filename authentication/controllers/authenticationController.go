@@ -1,7 +1,6 @@
 package authController
 
 import (
-	"log"
 	"net/http"
 	authenticationModel "portfolioAPI/authentication/models"
 	authService "portfolioAPI/authentication/service"
@@ -20,7 +19,12 @@ func NewAuthController() *AuthenticationController {
 }
 
 func (con *AuthenticationController) AuthenticateUser(context *gin.Context) {
-	var userInput authenticationModel.LoginRequest
+	var userInput *authenticationModel.LoginRequest
+    if err := context.ShouldBindJSON(&userInput); err != nil{
+    context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+    return
+  }
+
 	result := con.service.AuthenticateUser(userInput)
 
 	if result == nil{
