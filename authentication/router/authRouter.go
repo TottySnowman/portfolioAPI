@@ -13,4 +13,10 @@ func RegisterAuthRouter(router *gin.Engine){
   {
     routerGroup.POST("signIn", authController.AuthenticateUser)
   }
+
+  var existingAdmin = authController.IsAdminCreated()
+
+  if !existingAdmin{
+    routerGroup.POST("register", authController.RegisterAdmin)
+  }
 }

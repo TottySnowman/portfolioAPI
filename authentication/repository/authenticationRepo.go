@@ -1,6 +1,7 @@
 package authenticationRepo
 
 import (
+	"os"
 	authenticationModel "portfolioAPI/authentication/models"
 	"portfolioAPI/database"
 
@@ -34,4 +35,39 @@ func (repo *AuthRepo) AuthenticateUser(userInput *authenticationModel.LoginReque
 	return &authenticationModel.User{
 		Username: existingUser.Username,
 	}
+}
+
+func (repo *AuthRepo) IsAdminCreated() bool {
+	var count int64
+	result := repo.db.Table("User").Count(&count)
+
+	if result.Error != nil || count == 0 {
+		return false
+	}
+	return true
+}
+
+func (repo *AuthRepo) RegisterAdmin() bool {
+	if repo.IsAdminCreated() {
+		return false
+	}
+
+	newAdminUser := &authenticationModel.User{
+		Email:    os.Getenv("ADMIN_EMAIL"),
+		Password: os.Getenv("ADMIN_PASSWORD"),
+		Username: os.Getenv("ADMIN_USERNAME"),
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newAdminUser.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return false
+	}
+
+  newAdminUser.Password = string(hashedPassword)
+
+	result := repo.db.Create(&newAdminUser)
+	if result.Error != nil {
+		return false
+	}
+
+	return true
 }

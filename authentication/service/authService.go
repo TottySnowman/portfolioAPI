@@ -45,3 +45,11 @@ func (service *AuthService) AuthenticateUser(userInput *authenticationModel.Logi
 		Token: tokenString,
 	}
 }
+
+func (service *AuthService) IsAdminCreated() bool{
+  return service.repo.IsAdminCreated()
+}
+
+func(service *AuthService) RegisterAdmin() bool{
+  return service.repo.RegisterAdmin()
+}
