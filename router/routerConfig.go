@@ -2,6 +2,7 @@ package router
 
 import (
 	"os"
+	authRouter "portfolioAPI/authentication/router"
 	project_routes "portfolioAPI/project/router"
 	"strings"
 
@@ -35,7 +36,9 @@ func setupCors(router *gin.Engine) {
 }
 
 func setupRoutes(router *gin.Engine) {
-	project_routes.RegisterProjectRoutes(router)
+	project_routes.RegisterProjectRoutes(router) 
+
+  authRouter.RegisterAuthRouter(router)
 }
 
 func setupLogoServ(router *gin.Engine) {
