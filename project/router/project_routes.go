@@ -4,6 +4,7 @@ import (
 	projectController "portfolioAPI/project/controllers"
 
 	"github.com/gin-gonic/gin"
+  middleware "portfolioAPI/router/authorization"
 )
 
 func RegisterProjectRoutes(router *gin.Engine){
@@ -11,6 +12,6 @@ func RegisterProjectRoutes(router *gin.Engine){
   routerGroup := router.Group("/project")
   {
     routerGroup.GET("", projectController.GetAllProjects)
-    routerGroup.POST("", projectController.InsertProject)
+    routerGroup.POST("", middleware.JWTMiddleware(), projectController.InsertProject)
   }
 }
