@@ -43,3 +43,19 @@ func (con *ProjectController) InsertProject(context *gin.Context){
   
   context.Status(http.StatusCreated)
 }
+
+func (con *ProjectController) UpdateProject(context *gin.Context){
+  var project *projectModel.Project
+
+  if err := context.ShouldBindJSON(&project); err != nil{
+    context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+    return
+  }
+
+  if err := con.service.Update(*project); err != nil{
+    context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+    return
+  }
+  
+  context.Status(http.StatusOK)
+}

@@ -11,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 )
 
@@ -27,6 +28,7 @@ func initMySql() {
 
   databaseURL := os.Getenv("DB_DSN")
 	db, err := gorm.Open(mysql.Open(databaseURL), &gorm.Config{
+    Logger: logger.Default.LogMode(logger.Info),
     NamingStrategy: schema.NamingStrategy{
       SingularTable: true,
       NoLowerCase: true,

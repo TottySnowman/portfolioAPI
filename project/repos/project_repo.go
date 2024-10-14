@@ -1,10 +1,12 @@
 package project_repo
 
 import (
+	"errors"
 	"os"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
 	"sort"
+
 	"gorm.io/gorm"
 )
 
@@ -79,12 +81,29 @@ func sortProjectsByDate(projects []projectModel.ProjectDisplay) {
 	})
 }
 
-func (repo *Project_Repo) Insert(projectToCreate *projectModel.Project) error{
+func (repo *Project_Repo) Insert(projectToCreate *projectModel.Project) error {
 	result := repo.db.Create(&projectToCreate)
 
-  if result.Error != nil{
-    return result.Error
-  }
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) error {
+	var dbProject = projectModel.Project{Model: gorm.Model{ID: projectToUpdate.ID}}
+	existingProject := repo.db.First(&dbProject)
+
+	if existingProject.Error != nil {
+		return errors.New("Project not found")
+	}
+
+	updateProject := repo.db.Model(&dbProject).Select("*").Omit("CreatedAt").Updates(projectToUpdate)
+
+	if updateProject.Error != nil {
+		return errors.New(updateProject.Error.Error())
+	}
 
 	return nil
 }
