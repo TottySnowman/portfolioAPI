@@ -107,3 +107,21 @@ func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) error {
 
 	return nil
 }
+
+func (repo *Project_Repo) Delete(projectID int) error {
+
+	var dbProject = projectModel.Project{Model: gorm.Model{ID: uint(projectID)}}
+	existingProject := repo.db.First(&dbProject)
+
+	if existingProject.Error != nil {
+		return errors.New("Project not found")
+	}
+
+	result := repo.db.Delete(&dbProject)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
