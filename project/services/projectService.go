@@ -19,10 +19,14 @@ func (service *ProjectService) GetAllProjects() []projectModel.ProjectDisplay {
 	return service.repository.GetAllProjects()
 }
 
-func(service *ProjectService) Insert(project projectModel.Project) error{
-  return service.repository.Insert(&project)
+func (service *ProjectService) Insert(project projectModel.Project) error {
+	return service.repository.Insert(&project)
 }
 
-func(service *ProjectService) Update(project projectModel.Project) error{
-  return service.repository.Update(&project)
+func (service *ProjectService) Update(project projectModel.Project) error {
+	return service.repository.Update(&project)
+}
+
+func (service *ProjectService) Delete(projectID int) error {
+	return service.repository.Delete(projectID)
 }
