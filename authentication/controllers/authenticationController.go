@@ -32,7 +32,7 @@ func (con *AuthenticationController) AuthenticateUser(context *gin.Context) {
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, gin.H{"token": result.Token})
+  context.IndentedJSON(http.StatusOK, gin.H{"token": result.Token, "Username": result.Username})
 }
 
 func (con *AuthenticationController) IsAdminCreated() bool {

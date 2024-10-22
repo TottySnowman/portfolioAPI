@@ -43,6 +43,7 @@ func (service *AuthService) AuthenticateUser(userInput *authenticationModel.Logi
 
 	return &authenticationModel.AuthenticationResponse{
 		Token: tokenString,
+    Username: authenticatedUser.Username,
 	}
 }
 
