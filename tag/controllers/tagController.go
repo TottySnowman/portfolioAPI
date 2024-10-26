@@ -2,7 +2,9 @@ package tagController
 
 import (
 	"net/http"
+	tagModel "portfolioAPI/tag/models"
 	tagService "portfolioAPI/tag/services"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,3 +29,51 @@ func(controller *TagController) GetAllTags(context *gin.Context){
 
   context.IndentedJSON(http.StatusOK, existingTags)
 }
+
+func (con *TagController) InsertTag(context *gin.Context) {
+	var tag *tagModel.Tag
+
+	if err := context.ShouldBindJSON(&tag); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+
+	if err := con.service.Insert(*tag); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	context.Status(http.StatusCreated)
+}
+
+func (con *TagController) UpdateTag(context *gin.Context) {
+	var tag *tagModel.Tag
+
+	if err := context.ShouldBindJSON(&tag); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+
+	if err := con.service.Update(*tag); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	context.Status(http.StatusOK)
+}
+
+func (con *TagController) DeleteTag(context *gin.Context) {
+	tagID, err := strconv.Atoi(context.Param("ID"))
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	if err := con.service.Delete(tagID); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	context.Status(http.StatusOK)
+}
+
