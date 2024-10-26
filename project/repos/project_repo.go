@@ -5,6 +5,7 @@ import (
 	"os"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
+	tagModel "portfolioAPI/tag/models"
 	"sort"
 
 	"gorm.io/gorm"
@@ -57,12 +58,12 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 				Github_Link: project.GithubLink,
 				Demo_Link:   project.DemoLink,
 				Logo_Path:   apiURL + project.LogoPath,
-				Tags:        []projectModel.JsonTag{},
+				Tags:        []tagModel.JsonTag{},
 				DevDate:     project.DevDate,
 			}
 		}
 
-		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, projectModel.JsonTag{
+		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, tagModel.JsonTag{
 			TagIcon: project.TagIcon,
 			Tag:     project.Tag,
 		})

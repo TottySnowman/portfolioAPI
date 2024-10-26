@@ -4,10 +4,12 @@ import (
 	"os"
 	authRouter "portfolioAPI/authentication/router"
 	project_routes "portfolioAPI/project/router"
+	tagRoutes "portfolioAPI/tag/router"
+
+	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"strings"
 )
 
 func SetupRouter(router *gin.Engine) {
@@ -37,6 +39,7 @@ func setupCors(router *gin.Engine) {
 
 func setupRoutes(router *gin.Engine) {
 	project_routes.RegisterProjectRoutes(router)
+  tagRoutes.RegisterTagRoutes(router)
 
 	authRouter.RegisterAuthRouter(router)
 }
