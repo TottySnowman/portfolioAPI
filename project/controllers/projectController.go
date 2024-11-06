@@ -73,5 +73,5 @@ func (con *ProjectController) DeleteProject(context *gin.Context) {
 		return
 	}
 
-	context.Status(http.StatusOK)
+	context.IndentedJSON(http.StatusOK, gin.H{"message": "Project deleted successfully"})
 }
