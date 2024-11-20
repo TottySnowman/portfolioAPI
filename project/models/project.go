@@ -26,10 +26,15 @@ type ProjectStatus struct {
 	Status  string `gorm:"size:12;not null"` // Status of the project
 	Project []Project
 }
+type ProjectStatusDisplay struct {
+	StatusID int
+	Status   string
+}
 
 type ProjectDataSelect struct {
 	ProjectID  int
 	Status     string
+  StatusID   int
 	Name       string
 	About      string
 	GithubLink string
@@ -42,7 +47,7 @@ type ProjectDataSelect struct {
 
 type ProjectDisplay struct {
 	ProjectID   int
-	Status      string
+  Status      ProjectStatusDisplay
 	Name        string
 	About       string
 	Github_Link string
