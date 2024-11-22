@@ -30,8 +30,7 @@ func (con *ProjectController) GetAllProjects(context *gin.Context) {
 }
 
 func (con *ProjectController) InsertProject(context *gin.Context) {
-	var project *projectModel.Project
-
+	var project *projectModel.ProjectDisplay
 	if err := context.ShouldBindJSON(&project); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return

@@ -19,8 +19,9 @@ func (service *ProjectService) GetAllProjects() []projectModel.ProjectDisplay {
 	return service.repository.GetAllProjects()
 }
 
-func (service *ProjectService) Insert(project projectModel.Project) error {
-	return service.repository.Insert(&project)
+func (service *ProjectService) Insert(project projectModel.ProjectDisplay) error {
+  databaseProject := GetDbProjectFromDisplay(project)
+	return service.repository.Insert(&databaseProject)
 }
 
 func (service *ProjectService) Update(project projectModel.Project) error {
@@ -29,4 +30,16 @@ func (service *ProjectService) Update(project projectModel.Project) error {
 
 func (service *ProjectService) Delete(projectID int) error {
 	return service.repository.Delete(projectID)
+}
+
+func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.Project {
+	return projectModel.Project{
+		Name:            display.Name,
+		About:           display.About,
+		Hidden:          display.Hidden,
+		DevDate:         display.DevDate,
+		DemoLink:        display.Demo_Link,
+		GithubLink:      display.Github_Link,
+		ProjectStatusID: uint(display.Status.StatusID),
+	}
 }

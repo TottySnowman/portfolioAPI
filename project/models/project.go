@@ -26,6 +26,7 @@ type ProjectStatus struct {
 	Status  string `gorm:"size:12;not null"` // Status of the project
 	Project []Project
 }
+
 type ProjectStatusDisplay struct {
 	StatusID int
 	Status   string
@@ -55,4 +56,5 @@ type ProjectDisplay struct {
 	Logo_Path   string
 	Tags        []tagModel.JsonTag
 	DevDate     time.Time
+  Hidden      bool
 }

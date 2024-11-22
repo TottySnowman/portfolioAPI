@@ -20,7 +20,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		tokenString := strings.Split(authHeader, "Bearer ")[1] // Extract token from "Bearer <token>"
+		tokenString := strings.Split(authHeader, "Bearer ")[1]
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
 			c.Abort()
@@ -42,7 +42,7 @@ func JWTMiddleware() gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			exp := int64(claims["exp"].(float64)) // Check token expiration
+			exp := int64(claims["exp"].(float64))
 			if exp < time.Now().Unix() {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has expired"})
 				c.Abort()
