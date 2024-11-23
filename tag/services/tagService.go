@@ -15,7 +15,7 @@ func NewTagService() *TagService{
   }
 }
 
-func(service *TagService) GetAllTags() []tagModel.Tag{
+func(service *TagService) GetAllTags() []tagModel.JsonTag{
   return service.repo.GetAllTags()
 }
 func (service *TagService) Insert(tag tagModel.Tag) error {

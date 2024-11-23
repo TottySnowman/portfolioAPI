@@ -9,6 +9,7 @@ type Tag struct {
 }
 
 type JsonTag struct {
+  TagId int
 	TagIcon string
 	Tag     string
 }

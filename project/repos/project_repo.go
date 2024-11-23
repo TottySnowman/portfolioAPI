@@ -24,7 +24,7 @@ func NewProjectRepo() *Project_Repo {
 func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
 	var selectedProjects []projectModel.ProjectDataSelect
 
-	result := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, p.DevDate").Table("Project as p").
+	result := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate").Table("Project as p").
 		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
 		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
 		Joins("inner join Tag as t ON t.ID = pt.TagID").
@@ -69,6 +69,7 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, tagModel.JsonTag{
 			TagIcon: project.TagIcon,
 			Tag:     project.Tag,
+      TagId:   project.TagId,
 		})
 	}
 	var projectDisplay []projectModel.ProjectDisplay

@@ -18,14 +18,24 @@ func NewTagRepo() *TagRepo {
 	}
 }
 
-func (repo *TagRepo) GetAllTags() []tagModel.Tag {
+func (repo *TagRepo) GetAllTags() []tagModel.JsonTag {
 	var selectedTags []tagModel.Tag
 	result := repo.db.Find(&selectedTags)
 
 	if result.Error != nil {
 		return nil
 	}
-	return selectedTags
+
+  var jsonTags []tagModel.JsonTag
+  for _, tag := range selectedTags {
+    jsonTags = append(jsonTags, tagModel.JsonTag{
+			TagId:   int(tag.ID),
+			Tag:     tag.Tag,
+			TagIcon: tag.Icon,
+		})
+  }
+  
+	return jsonTags
 }
 
 func (repo *TagRepo) Insert(tagToCreate *tagModel.Tag) error {

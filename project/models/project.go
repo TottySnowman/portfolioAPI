@@ -43,6 +43,7 @@ type ProjectDataSelect struct {
 	LogoPath   string
 	TagIcon    string
 	Tag        string
+  TagId      int
 	DevDate    time.Time
 }
 
