@@ -67,7 +67,7 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 		}
 
 		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, tagModel.JsonTag{
-			TagIcon: project.TagIcon,
+			Icon: project.TagIcon,
 			Tag:     project.Tag,
       TagId:   project.TagId,
 		})

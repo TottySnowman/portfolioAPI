@@ -31,7 +31,7 @@ func (repo *TagRepo) GetAllTags() []tagModel.JsonTag {
     jsonTags = append(jsonTags, tagModel.JsonTag{
 			TagId:   int(tag.ID),
 			Tag:     tag.Tag,
-			TagIcon: tag.Icon,
+			Icon: tag.Icon,
 		})
   }
   
