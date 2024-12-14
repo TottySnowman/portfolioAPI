@@ -38,14 +38,14 @@ func (repo *TagRepo) GetAllTags() []tagModel.JsonTag {
 	return jsonTags
 }
 
-func (repo *TagRepo) Insert(tagToCreate *tagModel.Tag) error {
+func (repo *TagRepo) Insert(tagToCreate *tagModel.Tag) (*tagModel.Tag, error) {
 	result := repo.db.Create(&tagToCreate)
 
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 
-	return nil
+	return tagToCreate, nil
 }
 
 func (repo *TagRepo) Update(tagToUpdate *tagModel.Tag) error {

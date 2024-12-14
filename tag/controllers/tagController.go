@@ -38,12 +38,13 @@ func (con *TagController) InsertTag(context *gin.Context) {
 		return
 	}
 
-	if err := con.service.Insert(*tag); err != nil {
+	newTag, err := con.service.Insert(*tag)
+  if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
-	context.Status(http.StatusCreated)
+	context.IndentedJSON(http.StatusCreated, newTag)
 }
 
 func (con *TagController) UpdateTag(context *gin.Context) {
