@@ -7,7 +7,11 @@ meta {
 post {
   url: http://localhost:6001/project
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: 
 }
 
 body:json {
@@ -19,9 +23,16 @@ body:json {
     "LogoPath": "/static/images/project-logo.png",
     "DevDate": "2023-05-06T00:00:00Z",
     "Hidden": false,
-    "ProjectStatusID": 1,
+    "Status": {
+      "Status": "On going",
+      "StatusID": 1
+  },
     "Tags": [
-      {"ID": 1}
+      {
+     "TagId": 26,
+    "Icon": "TEST",
+    "Tag": "TEST"
+  }
     ]
   }
 }

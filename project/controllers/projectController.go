@@ -10,17 +10,17 @@ import (
 )
 
 type ProjectController struct {
-	service *projectService.ProjectService
+	projectService *projectService.ProjectService
 }
 
-func NewProjectController() *ProjectController {
+func NewProjectController(projectService *projectService.ProjectService) *ProjectController {
 	return &ProjectController{
-		service: projectService.NewProjectService(),
+		projectService: projectService,
 	}
 }
 
 func (con *ProjectController) GetAllProjects(context *gin.Context) {
-	projects := con.service.GetAllProjects()
+	projects := con.projectService.GetAllProjects()
 	if projects == nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "No projects found"})
 		return
@@ -36,7 +36,7 @@ func (con *ProjectController) InsertProject(context *gin.Context) {
 		return
 	}
 
-	if err := con.service.Insert(*project); err != nil {
+	if err := con.projectService.Insert(*project); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
@@ -45,14 +45,14 @@ func (con *ProjectController) InsertProject(context *gin.Context) {
 }
 
 func (con *ProjectController) UpdateProject(context *gin.Context) {
-	var project *projectModel.Project
+	var project *projectModel.ProjectDisplay
 
 	if err := context.ShouldBindJSON(&project); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
-	if err := con.service.Update(*project); err != nil {
+	if err := con.projectService.Update(*project); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
@@ -67,7 +67,7 @@ func (con *ProjectController) DeleteProject(context *gin.Context) {
 		return
 	}
 
-	if err := con.service.Delete(projectID); err != nil {
+	if err := con.projectService.Delete(projectID); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}

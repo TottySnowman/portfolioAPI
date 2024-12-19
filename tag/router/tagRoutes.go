@@ -7,8 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterTagRoutes(router *gin.Engine) {
-  tagController := tagController.NewTagController()
+func RegisterTagRoutes(router *gin.Engine, tagController *tagController.TagController) {
 	routerGroup := router.Group("/tag")
 	{
 		routerGroup.GET("",middleware.JWTMiddleware(), tagController.GetAllTags)

@@ -13,9 +13,9 @@ type TagController struct {
 	service *tagService.TagService
 }
 
-func NewTagController() *TagController {
+func NewTagController(tagService *tagService.TagService) *TagController {
 	return &TagController{
-		service: tagService.NewTagService(),
+		service: tagService,
 	}
 }
 

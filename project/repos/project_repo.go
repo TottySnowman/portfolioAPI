@@ -2,6 +2,7 @@ package project_repo
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
@@ -67,9 +68,9 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 		}
 
 		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, tagModel.JsonTag{
-			Icon: project.TagIcon,
-			Tag:     project.Tag,
-      TagId:   project.TagId,
+			Icon:  project.TagIcon,
+			Tag:   project.Tag,
+			TagId: project.TagId,
 		})
 	}
 	var projectDisplay []projectModel.ProjectDisplay
@@ -97,7 +98,7 @@ func (repo *Project_Repo) Insert(projectToCreate *projectModel.Project) error {
 }
 
 func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) error {
-	var dbProject = projectModel.Project{Model: gorm.Model{ID: projectToUpdate.ID}}
+	var dbProject = projectModel.Project{ID: projectToUpdate.ID}
 	existingProject := repo.db.First(&dbProject)
 
 	if existingProject.Error != nil {
@@ -126,6 +127,22 @@ func (repo *Project_Repo) Delete(projectID int) error {
 
 	if result.Error != nil {
 		return result.Error
+	}
+
+	return nil
+}
+
+func (repo *Project_Repo) InsertIntoProjectTags(projectId int, tagIds []int) error {
+	var project projectModel.Project
+	repo.db.First(&project, projectId)
+
+	var tags []tagModel.Tag
+	if err := repo.db.Where("id IN ?", tagIds).Find(&tags).Error; err != nil {
+		return fmt.Errorf("failed to find tags with IDs %v: %w", tagIds, err)
+	}
+
+	if err := repo.db.Model(&project).Association("Tags").Replace(&tags); err != nil {
+		return fmt.Errorf("failed to append tags to project ID %d: %w", project.ID, err)
 	}
 
 	return nil

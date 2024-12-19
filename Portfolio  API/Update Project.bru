@@ -7,12 +7,16 @@ meta {
 put {
   url: http://localhost:6001/project
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: 
 }
 
 body:json {
   {
-    "ID": 12,
+    "ProjectID": 60,
     "name": "Updated something",
     "about": "Update",
     "GithubLink": "https://github.com/username/my-awesome-project",
@@ -20,9 +24,16 @@ body:json {
     "LogoPath": "/static/images/project-logo.png",
     "DevDate": "2023-05-06T00:00:00Z",
     "Hidden": false,
-    "ProjectStatusID": 1,
+    "Status": {
+      "Status": "On going",
+      "StatusID": 1
+    },
     "Tags": [
-      {"ID": 1}
+      {
+        "TagId": 17,
+        "Icon": "TEST",
+        "Tag": "TEST"
+      }
     ]
   }
 }

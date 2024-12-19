@@ -9,9 +9,9 @@ type TagService struct{
   repo *tagRepo.TagRepo
 }
 
-func NewTagService() *TagService{
+func NewTagService(tagRepo *tagRepo.TagRepo) *TagService{
   return &TagService{
-    repo: tagRepo.NewTagRepo(),
+    repo: tagRepo,
   }
 }
 
@@ -37,5 +37,13 @@ func (service *TagService) ConvertTagToDisplayTag(dbTag *tagModel.Tag) tagModel.
     TagId: int(dbTag.ID),
     Icon: dbTag.Icon,
     Tag: dbTag.Tag,
+  }
+}
+
+func(service *TagService) ConvertDisplayTagToDbTag(displayTag tagModel.JsonTag) tagModel.Tag{
+  return tagModel.Tag{
+    ID: uint(displayTag.TagId),
+    Icon: displayTag.Icon,
+    Tag: displayTag.Tag,
   }
 }

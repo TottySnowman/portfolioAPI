@@ -8,6 +8,7 @@ import (
 
 type Project struct {
 	gorm.Model
+  ID              int
 	Name            string         `gorm:"size:255;not null"`                                                         // Name of the project
 	About           string         `gorm:"size:512;not null"`                                                         // Description of the project
 	GithubLink      string         `gorm:"size:255;not null"`                                                         // GitHub repository link
@@ -20,10 +21,9 @@ type Project struct {
 	Tags            []tagModel.Tag `gorm:"many2many:Project_Tags"`                                                    // Many-to-many relationship with Tag
 }
 
-// ProjectStatus struct corresponds to the `ProjectStatus` table
 type ProjectStatus struct {
 	gorm.Model
-	Status  string `gorm:"size:12;not null"` // Status of the project
+	Status  string `gorm:"size:12;not null"`
 	Project []Project
 }
 
