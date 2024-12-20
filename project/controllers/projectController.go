@@ -36,12 +36,13 @@ func (con *ProjectController) InsertProject(context *gin.Context) {
 		return
 	}
 
-	if err := con.projectService.Insert(*project); err != nil {
+	createdProject, err := con.projectService.Insert(*project)
+  if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
-	context.Status(http.StatusCreated)
+	context.IndentedJSON(http.StatusOK, createdProject)
 }
 
 func (con *ProjectController) UpdateProject(context *gin.Context) {

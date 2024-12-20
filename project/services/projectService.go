@@ -23,28 +23,33 @@ func (service *ProjectService) GetAllProjects() []projectModel.ProjectDisplay {
 	return service.repository.GetAllProjects()
 }
 
-func (service *ProjectService) Insert(project projectModel.ProjectDisplay) error {
+func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
 	databaseProject := GetDbProjectFromDisplay(project)
-  insertError := service.repository.Insert(&databaseProject)
-  if insertError != nil{
-    return insertError
+  _, insertError := service.repository.Insert(&databaseProject)
+
+	if insertError != nil {
+		return nil, insertError
+	}
+
+	service.insertIntoProjectTag(project.Tags, databaseProject.ID)
+
+  mappedProject, err := service.GetProjectById(databaseProject.ID)
+  if err != nil{
+    return nil, err
   }
 
-  println("BING BONG!")
-  println("NEW ID OF PROJECT: ", databaseProject.ID)
-  service.insertIntoProjectTag(project.Tags, databaseProject.ID)
-  return nil
+  return mappedProject, nil
 }
 
 func (service *ProjectService) Update(project projectModel.ProjectDisplay) error {
 	databaseProject := GetDbProjectFromDisplay(project)
-  error := service.repository.Update(&databaseProject)
-  if error != nil{
-    return error
-  }
+	error := service.repository.Update(&databaseProject)
+	if error != nil {
+		return error
+	}
 
-  service.insertIntoProjectTag(project.Tags, project.ProjectID)
-  return nil
+	service.insertIntoProjectTag(project.Tags, project.ProjectID)
+	return nil
 }
 
 func (service *ProjectService) Delete(projectID int) error {
@@ -53,39 +58,43 @@ func (service *ProjectService) Delete(projectID int) error {
 
 func (service *ProjectService) insertIntoProjectTag(projectTags []tagModel.JsonTag, projectId int) {
 	convertedTags := service.convertDisplayTagsToDbTags(projectTags)
-  tagIds := getTagIds(convertedTags)
+	tagIds := getTagIds(convertedTags)
 
-  error := service.repository.InsertIntoProjectTags(projectId, tagIds)
+	error := service.repository.InsertIntoProjectTags(projectId, tagIds)
 
-  if error != nil{
-    // TODO handling
-    println("Error in insert")
-  }
+	if error != nil {
+		// TODO handling
+		println("Error in insert")
+	}
 
 }
 
-func (service *ProjectService)convertDisplayTagsToDbTags(projectTags []tagModel.JsonTag) []tagModel.Tag {
+func (service *ProjectService) GetProjectById(projectId int)(*projectModel.ProjectDisplay, error) {
+  return service.repository.GetProjectById(projectId)
+}
+
+func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel.JsonTag) []tagModel.Tag {
 	var convertedTags []tagModel.Tag
 	for _, tag := range projectTags {
-    println(tag.TagId)
+		println(tag.TagId)
 		convertedTags = append(convertedTags, service.tagService.ConvertDisplayTagToDbTag(tag))
 	}
 
 	return convertedTags
 }
 
-func getTagIds(tags []tagModel.Tag) []int{
-  var tagIds []int
-  for _, tag := range tags{
-    tagIds = append(tagIds, int(tag.ID))
-  }
+func getTagIds(tags []tagModel.Tag) []int {
+	var tagIds []int
+	for _, tag := range tags {
+		tagIds = append(tagIds, int(tag.ID))
+	}
 
-  return tagIds
+	return tagIds
 }
 
 func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.Project {
 	return projectModel.Project{
-    ID:             display.ProjectID,
+		ID:              display.ProjectID,
 		Name:            display.Name,
 		About:           display.About,
 		Hidden:          display.Hidden,
