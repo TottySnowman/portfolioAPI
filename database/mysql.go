@@ -6,6 +6,7 @@ import (
 	"os"
 	authenticationModel "portfolioAPI/authentication/models"
 	projectModel "portfolioAPI/project/models"
+	tagModel "portfolioAPI/tag/models"
 	"sync"
 
 	"github.com/joho/godotenv"
@@ -38,7 +39,7 @@ func initMySql() {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
-  db.AutoMigrate(&projectModel.Project{}, &projectModel.Tag{}, &projectModel.ProjectStatus{}, &authenticationModel.User{})
+  db.AutoMigrate(&projectModel.Project{}, &tagModel.Tag{}, &projectModel.ProjectStatus{}, &authenticationModel.User{})
 
 	fmt.Println("Database connection successful!")
 	database = db

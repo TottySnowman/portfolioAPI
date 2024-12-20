@@ -2,9 +2,11 @@ package project_repo
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
+	tagModel "portfolioAPI/tag/models"
 	"sort"
 
 	"gorm.io/gorm"
@@ -23,11 +25,11 @@ func NewProjectRepo() *Project_Repo {
 func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
 	var selectedProjects []projectModel.ProjectDataSelect
 
-	result := repo.db.Select("Status, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, p.DevDate").Table("Project as p").
+	result := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate").Table("Project as p").
 		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
 		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
 		Joins("inner join Tag as t ON t.ID = pt.TagID").
-		Where("Hidden = false").Order("p.DevDate ASC").Find(&selectedProjects)
+		Where("Hidden = false").Where("p.DeletedAt IS NULL").Order("p.DevDate ASC").Find(&selectedProjects)
 
 	if result.Error != nil {
 		return nil
@@ -40,6 +42,24 @@ func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
 	return projects
 }
 
+func (repo *Project_Repo) GetProjectById(projectId int) (*projectModel.ProjectDisplay, error){
+	var selectedProjects []projectModel.ProjectDataSelect
+
+	result := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate").Table("Project as p").
+		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
+		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
+		Joins("inner join Tag as t ON t.ID = pt.TagID").
+		Where("Hidden = false").Where("p.DeletedAt IS NULL AND p.ID = ?", projectId).Order("p.DevDate ASC").Find(&selectedProjects)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	projects := mapDataRowsToProjects(selectedProjects)
+
+  return &projects[0], nil
+}
+
 func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectModel.ProjectDisplay {
 
 	apiURL := os.Getenv("API_ENDPOINT_URL")
@@ -50,21 +70,25 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 
 		if !projectExists {
 			projectMap[project.ProjectID] = &projectModel.ProjectDisplay{
-				ProjectID:   project.ProjectID,
-				Name:        project.Name,
-				About:       project.About,
-				Status:      project.Status,
+				ProjectID: project.ProjectID,
+				Name:      project.Name,
+				About:     project.About,
+				Status: projectModel.ProjectStatusDisplay{
+					StatusID: project.StatusID,
+					Status:   project.Status,
+				},
 				Github_Link: project.GithubLink,
 				Demo_Link:   project.DemoLink,
 				Logo_Path:   apiURL + project.LogoPath,
-				Tags:        []projectModel.JsonTag{},
+				Tags:        []tagModel.JsonTag{},
 				DevDate:     project.DevDate,
 			}
 		}
 
-		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, projectModel.JsonTag{
-			TagIcon: project.TagIcon,
-			Tag:     project.Tag,
+		projectMap[project.ProjectID].Tags = append(projectMap[project.ProjectID].Tags, tagModel.JsonTag{
+			Icon:  project.TagIcon,
+			Tag:   project.Tag,
+			TagId: project.TagId,
 		})
 	}
 	var projectDisplay []projectModel.ProjectDisplay
@@ -81,18 +105,18 @@ func sortProjectsByDate(projects []projectModel.ProjectDisplay) {
 	})
 }
 
-func (repo *Project_Repo) Insert(projectToCreate *projectModel.Project) error {
+func (repo *Project_Repo) Insert(projectToCreate *projectModel.Project) (*projectModel.Project, error) {
 	result := repo.db.Create(&projectToCreate)
 
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 
-	return nil
+	return *&projectToCreate, nil
 }
 
 func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) error {
-	var dbProject = projectModel.Project{Model: gorm.Model{ID: projectToUpdate.ID}}
+	var dbProject = projectModel.Project{ID: projectToUpdate.ID}
 	existingProject := repo.db.First(&dbProject)
 
 	if existingProject.Error != nil {
@@ -110,7 +134,7 @@ func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) error {
 
 func (repo *Project_Repo) Delete(projectID int) error {
 
-	var dbProject = projectModel.Project{Model: gorm.Model{ID: uint(projectID)}}
+	var dbProject = projectModel.Project{ID: projectID}
 	existingProject := repo.db.First(&dbProject)
 
 	if existingProject.Error != nil {
@@ -121,6 +145,22 @@ func (repo *Project_Repo) Delete(projectID int) error {
 
 	if result.Error != nil {
 		return result.Error
+	}
+
+	return nil
+}
+
+func (repo *Project_Repo) InsertIntoProjectTags(projectId int, tagIds []int) error {
+	var project projectModel.Project
+	repo.db.First(&project, projectId)
+
+	var tags []tagModel.Tag
+	if err := repo.db.Where("id IN ?", tagIds).Find(&tags).Error; err != nil {
+		return fmt.Errorf("failed to find tags with IDs %v: %w", tagIds, err)
+	}
+
+	if err := repo.db.Model(&project).Association("Tags").Replace(&tags); err != nil {
+		return fmt.Errorf("failed to append tags to project ID %d: %w", project.ID, err)
 	}
 
 	return nil
