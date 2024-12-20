@@ -67,7 +67,7 @@ func (repo *TagRepo) Update(tagToUpdate *tagModel.Tag) error {
 
 func (repo *TagRepo) Delete(tagID int) error {
 
-	var dbTag = tagModel.Tag{Model: gorm.Model{ID: uint(tagID)}}
+	var dbTag = tagModel.Tag{ID: uint(tagID)}
 	existingTag := repo.db.First(&dbTag)
 
 	if existingTag.Error != nil {
