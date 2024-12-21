@@ -19,15 +19,15 @@ func NewTagController(tagService *tagService.TagService) *TagController {
 	}
 }
 
-func(controller *TagController) GetAllTags(context *gin.Context){
-  existingTags := controller.service.GetAllTags()
+func (controller *TagController) GetAllTags(context *gin.Context) {
+	existingTags := controller.service.GetAllTags()
 
-  if existingTags == nil{
-    		context.JSON(http.StatusNotFound, gin.H{"error": "No tags found"})
+	if existingTags == nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "No tags found"})
 		return
-  }
+	}
 
-  context.IndentedJSON(http.StatusOK, existingTags)
+	context.IndentedJSON(http.StatusOK, existingTags)
 }
 
 func (con *TagController) InsertTag(context *gin.Context) {
@@ -39,7 +39,7 @@ func (con *TagController) InsertTag(context *gin.Context) {
 	}
 
 	newTag, err := con.service.Insert(*tag)
-  if err != nil {
+	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
@@ -48,19 +48,20 @@ func (con *TagController) InsertTag(context *gin.Context) {
 }
 
 func (con *TagController) UpdateTag(context *gin.Context) {
-	var tag *tagModel.Tag
+	var tag *tagModel.JsonTag
 
 	if err := context.ShouldBindJSON(&tag); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
-	if err := con.service.Update(*tag); err != nil {
+	updatedTag, err := con.service.Update(*tag)
+	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
-	context.Status(http.StatusOK)
+	context.IndentedJSON(http.StatusOK, updatedTag)
 }
 
 func (con *TagController) DeleteTag(context *gin.Context) {
@@ -77,4 +78,3 @@ func (con *TagController) DeleteTag(context *gin.Context) {
 
 	context.Status(http.StatusOK)
 }
-
