@@ -26,15 +26,15 @@ func (repo *TagRepo) GetAllTags() []tagModel.JsonTag {
 		return nil
 	}
 
-  var jsonTags []tagModel.JsonTag
-  for _, tag := range selectedTags {
-    jsonTags = append(jsonTags, tagModel.JsonTag{
-			TagId:   int(tag.ID),
-			Tag:     tag.Tag,
-			Icon: tag.Icon,
+	var jsonTags []tagModel.JsonTag
+	for _, tag := range selectedTags {
+		jsonTags = append(jsonTags, tagModel.JsonTag{
+			TagId: int(tag.ID),
+			Tag:   tag.Tag,
+			Icon:  tag.Icon,
 		})
-  }
-  
+	}
+
 	return jsonTags
 }
 
@@ -48,21 +48,21 @@ func (repo *TagRepo) Insert(tagToCreate *tagModel.Tag) (*tagModel.Tag, error) {
 	return tagToCreate, nil
 }
 
-func (repo *TagRepo) Update(tagToUpdate *tagModel.Tag) error {
-	var dbTag = tagModel.Tag{Model: gorm.Model{ID: tagToUpdate.ID}}
+func (repo *TagRepo) Update(tagToUpdate *tagModel.Tag) (*tagModel.Tag, error) {
+	var dbTag = tagModel.Tag{ID: tagToUpdate.ID}
 	existingTag := repo.db.First(&dbTag)
 
 	if existingTag.Error != nil {
-		return errors.New("Tag not found")
+		return nil, errors.New("Tag not found")
 	}
 
 	updateTag := repo.db.Model(&dbTag).Select("*").Omit("CreatedAt").Updates(tagToUpdate)
 
 	if updateTag.Error != nil {
-		return errors.New(updateTag.Error.Error())
+		return nil, errors.New(updateTag.Error.Error())
 	}
 
-	return nil
+	return &dbTag, nil
 }
 
 func (repo *TagRepo) Delete(tagID int) error {
