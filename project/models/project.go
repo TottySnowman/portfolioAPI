@@ -1,14 +1,15 @@
 package projectModel
 
 import (
-	"gorm.io/gorm"
 	tagModel "portfolioAPI/tag/models"
 	"time"
+  statusModel "portfolioAPI/status/models"
+	"gorm.io/gorm"
 )
 
 type Project struct {
 	gorm.Model
-  ID              int
+	ID              int
 	Name            string         `gorm:"size:255;not null"`                                                         // Name of the project
 	About           string         `gorm:"size:512;not null"`                                                         // Description of the project
 	GithubLink      string         `gorm:"size:255;not null"`                                                         // GitHub repository link
@@ -27,15 +28,10 @@ type ProjectStatus struct {
 	Project []Project
 }
 
-type ProjectStatusDisplay struct {
-	StatusID int
-	Status   string
-}
-
 type ProjectDataSelect struct {
 	ProjectID  int
 	Status     string
-  StatusID   int
+	StatusID   int
 	Name       string
 	About      string
 	GithubLink string
@@ -43,13 +39,13 @@ type ProjectDataSelect struct {
 	LogoPath   string
 	TagIcon    string
 	Tag        string
-  TagId      int
+	TagId      int
 	DevDate    time.Time
 }
 
 type ProjectDisplay struct {
 	ProjectID   int
-  Status      ProjectStatusDisplay
+	Status      statusModel.ProjectStatusDisplay
 	Name        string
 	About       string
 	Github_Link string
@@ -57,5 +53,5 @@ type ProjectDisplay struct {
 	Logo_Path   string
 	Tags        []tagModel.JsonTag
 	DevDate     time.Time
-  Hidden      bool
+	Hidden      bool
 }

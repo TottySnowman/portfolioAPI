@@ -5,6 +5,7 @@ import (
 	authRouter "portfolioAPI/authentication/router"
 	dependencyinjection "portfolioAPI/dependencyInjection"
 	project_routes "portfolioAPI/project/router"
+	statusRoutes "portfolioAPI/status/router"
 	tagRoutes "portfolioAPI/tag/router"
 
 	"strings"
@@ -41,7 +42,8 @@ func setupCors(router *gin.Engine) {
 func setupRoutes(router *gin.Engine, appContainer *dependencyinjection.AppContainer) {
 	project_routes.RegisterProjectRoutes(router, appContainer.ProjectController)
 	tagRoutes.RegisterTagRoutes(router, appContainer.TagController)
-
+  statusRoutes.RegisterTagRoutes(router, appContainer.StatusController)
+	
 	authRouter.RegisterAuthRouter(router)
 }
 

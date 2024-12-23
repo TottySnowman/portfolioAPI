@@ -6,6 +6,7 @@ import (
 	"os"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
+	statusModels "portfolioAPI/status/models"
 	tagModel "portfolioAPI/tag/models"
 	"sort"
 
@@ -73,7 +74,7 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 				ProjectID: project.ProjectID,
 				Name:      project.Name,
 				About:     project.About,
-				Status: projectModel.ProjectStatusDisplay{
+				Status: statusModels.ProjectStatusDisplay{
 					StatusID: project.StatusID,
 					Status:   project.Status,
 				},
