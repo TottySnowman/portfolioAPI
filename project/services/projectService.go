@@ -19,8 +19,8 @@ func NewProjectService(projectRepo *project_repo.Project_Repo, tagService *tagSe
 	}
 }
 
-func (service *ProjectService) GetAllProjects() []projectModel.ProjectDisplay {
-	return service.repository.GetAllProjects()
+func (service *ProjectService) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
+	return service.repository.GetAllProjects(includeHidden)
 }
 
 func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
@@ -33,7 +33,7 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
 
 	service.insertIntoProjectTag(project.Tags, databaseProject.ID)
 
-  mappedProject, err := service.GetProjectById(databaseProject.ID)
+  mappedProject, err := service.GetProjectById(databaseProject.ID, true)
   if err != nil{
     return nil, err
   }
@@ -41,15 +41,22 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
   return mappedProject, nil
 }
 
-func (service *ProjectService) Update(project projectModel.ProjectDisplay) error {
+func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
 	databaseProject := GetDbProjectFromDisplay(project)
-	error := service.repository.Update(&databaseProject)
+	_, error := service.repository.Update(&databaseProject)
+
 	if error != nil {
-		return error
+		return nil, error
 	}
 
 	service.insertIntoProjectTag(project.Tags, project.ProjectID)
-	return nil
+
+  mappedProject, err := service.GetProjectById(databaseProject.ID, true)
+  if err != nil{
+    return nil, err
+  }
+
+  return mappedProject, nil
 }
 
 func (service *ProjectService) Delete(projectID int) error {
@@ -69,8 +76,8 @@ func (service *ProjectService) insertIntoProjectTag(projectTags []tagModel.JsonT
 
 }
 
-func (service *ProjectService) GetProjectById(projectId int)(*projectModel.ProjectDisplay, error) {
-  return service.repository.GetProjectById(projectId)
+func (service *ProjectService) GetProjectById(projectId int, includeHidden bool)(*projectModel.ProjectDisplay, error) {
+  return service.repository.GetProjectById(projectId, includeHidden)
 }
 
 func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel.JsonTag) []tagModel.Tag {
