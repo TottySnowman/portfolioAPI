@@ -95,7 +95,7 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 				Logo_Path:   apiURL + project.LogoPath,
 				Tags:        []tagModel.JsonTag{},
 				DevDate:     project.DevDate,
-        Hidden: project.Hidden,
+				Hidden:      project.Hidden,
 			}
 		}
 
@@ -129,21 +129,21 @@ func (repo *Project_Repo) Insert(projectToCreate *projectModel.Project) (*projec
 	return *&projectToCreate, nil
 }
 
-func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) error {
+func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) (*projectModel.Project, error) {
 	var dbProject = projectModel.Project{ID: projectToUpdate.ID}
 	existingProject := repo.db.First(&dbProject)
 
 	if existingProject.Error != nil {
-		return errors.New("Project not found")
+		return nil, errors.New("Project not found")
 	}
 
 	updateProject := repo.db.Model(&dbProject).Select("*").Omit("CreatedAt").Updates(projectToUpdate)
 
 	if updateProject.Error != nil {
-		return errors.New(updateProject.Error.Error())
+		return nil, errors.New(updateProject.Error.Error())
 	}
 
-	return nil
+	return *&projectToUpdate, nil
 }
 
 func (repo *Project_Repo) Delete(projectID int) error {

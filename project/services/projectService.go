@@ -41,15 +41,22 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
   return mappedProject, nil
 }
 
-func (service *ProjectService) Update(project projectModel.ProjectDisplay) error {
+func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
 	databaseProject := GetDbProjectFromDisplay(project)
-	error := service.repository.Update(&databaseProject)
+	_, error := service.repository.Update(&databaseProject)
+
 	if error != nil {
-		return error
+		return nil, error
 	}
 
 	service.insertIntoProjectTag(project.Tags, project.ProjectID)
-	return nil
+
+  mappedProject, err := service.GetProjectById(databaseProject.ID, true)
+  if err != nil{
+    return nil, err
+  }
+
+  return mappedProject, nil
 }
 
 func (service *ProjectService) Delete(projectID int) error {
