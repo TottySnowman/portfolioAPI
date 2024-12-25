@@ -23,14 +23,20 @@ func NewProjectRepo() *Project_Repo {
 	}
 }
 
-func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
+func (repo *Project_Repo) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
 	var selectedProjects []projectModel.ProjectDataSelect
 
-	result := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate").Table("Project as p").
+	query := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate, p.Hidden").Table("Project as p").
 		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
 		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
 		Joins("inner join Tag as t ON t.ID = pt.TagID").
-		Where("Hidden = false").Where("p.DeletedAt IS NULL").Order("p.DevDate ASC").Find(&selectedProjects)
+		Where("p.DeletedAt IS NULL").Order("p.DevDate ASC")
+
+	if !includeHidden {
+		query = query.Where("Hidden = false")
+	}
+
+	result := query.Find(&selectedProjects)
 
 	if result.Error != nil {
 		return nil
@@ -43,14 +49,20 @@ func (repo *Project_Repo) GetAllProjects() []projectModel.ProjectDisplay {
 	return projects
 }
 
-func (repo *Project_Repo) GetProjectById(projectId int) (*projectModel.ProjectDisplay, error){
+func (repo *Project_Repo) GetProjectById(projectId int, includeHidden bool) (*projectModel.ProjectDisplay, error) {
 	var selectedProjects []projectModel.ProjectDataSelect
 
-	result := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate").Table("Project as p").
+	query := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate, p.Hidden").Table("Project as p").
 		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
 		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
 		Joins("inner join Tag as t ON t.ID = pt.TagID").
-		Where("Hidden = false").Where("p.DeletedAt IS NULL AND p.ID = ?", projectId).Order("p.DevDate ASC").Find(&selectedProjects)
+		Where("p.DeletedAt IS NULL AND p.ID = ?", projectId).Order("p.DevDate ASC")
+
+	if !includeHidden {
+		query = query.Where("Hidden = false")
+	}
+
+	result := query.Find(&selectedProjects)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -58,7 +70,7 @@ func (repo *Project_Repo) GetProjectById(projectId int) (*projectModel.ProjectDi
 
 	projects := mapDataRowsToProjects(selectedProjects)
 
-  return &projects[0], nil
+	return &projects[0], nil
 }
 
 func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectModel.ProjectDisplay {
@@ -83,6 +95,7 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 				Logo_Path:   apiURL + project.LogoPath,
 				Tags:        []tagModel.JsonTag{},
 				DevDate:     project.DevDate,
+        Hidden: project.Hidden,
 			}
 		}
 

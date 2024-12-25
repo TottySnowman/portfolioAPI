@@ -20,7 +20,17 @@ func NewProjectController(projectService *projectService.ProjectService) *Projec
 }
 
 func (con *ProjectController) GetAllProjects(context *gin.Context) {
-	projects := con.projectService.GetAllProjects()
+	projects := con.projectService.GetAllProjects(false)
+	if projects == nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "No projects found"})
+		return
+	}
+
+	context.IndentedJSON(http.StatusOK, projects)
+}
+
+func (con *ProjectController) GetAllProjectsIncludeHidden(context *gin.Context) {
+	projects := con.projectService.GetAllProjects(true)
 	if projects == nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "No projects found"})
 		return

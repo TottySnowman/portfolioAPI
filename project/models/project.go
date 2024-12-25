@@ -1,10 +1,10 @@
 package projectModel
 
 import (
+	"gorm.io/gorm"
+	statusModel "portfolioAPI/status/models"
 	tagModel "portfolioAPI/tag/models"
 	"time"
-  statusModel "portfolioAPI/status/models"
-	"gorm.io/gorm"
 )
 
 type Project struct {
@@ -41,6 +41,7 @@ type ProjectDataSelect struct {
 	Tag        string
 	TagId      int
 	DevDate    time.Time
+	Hidden     bool
 }
 
 type ProjectDisplay struct {
