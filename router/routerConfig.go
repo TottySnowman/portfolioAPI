@@ -4,6 +4,7 @@ import (
 	"os"
 	authRouter "portfolioAPI/authentication/router"
 	dependencyinjection "portfolioAPI/dependencyInjection"
+	fileRoutes "portfolioAPI/fileUpload/router"
 	project_routes "portfolioAPI/project/router"
 	statusRoutes "portfolioAPI/status/router"
 	tagRoutes "portfolioAPI/tag/router"
@@ -42,11 +43,12 @@ func setupCors(router *gin.Engine) {
 func setupRoutes(router *gin.Engine, appContainer *dependencyinjection.AppContainer) {
 	project_routes.RegisterProjectRoutes(router, appContainer.ProjectController)
 	tagRoutes.RegisterTagRoutes(router, appContainer.TagController)
-  statusRoutes.RegisterTagRoutes(router, appContainer.StatusController)
-	
+	statusRoutes.RegisterTagRoutes(router, appContainer.StatusController)
+
+	fileRoutes.RegisterFileRoutes(router, appContainer.FileController)
 	authRouter.RegisterAuthRouter(router)
 }
 
 func setupLogoServ(router *gin.Engine) {
-	router.Static("/logo", "./logo")
+	router.Static("/logo", "./public/logo")
 }

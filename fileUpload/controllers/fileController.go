@@ -18,26 +18,26 @@ func NewFileController(fileService *fileService.FileService) *FileController {
 }
 
 func (con *FileController) UploadFile(context *gin.Context) {
-	_, err := context.FormFile("file")
-	//file, err := context.FormFile("file")
+	file, err := context.FormFile("file")
 	if err != nil {
+		println(err.Error())
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
-	path, pathExists := context.GetPostForm("uploadPath")
-	if !pathExists {
+	uploadPath, err := con.fileService.HandleFileUpload(context.FullPath(), file)
 
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
 		return
 	}
 
-	println(path)
+	context.IndentedJSON(http.StatusOK, gin.H{"filePath": uploadPath})
+	return
 }
 
 func (con *FileController) DeleteFile(context *gin.Context) {
 	path, pathExists := context.GetPostForm("deletePath")
 	if !pathExists {
-
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
