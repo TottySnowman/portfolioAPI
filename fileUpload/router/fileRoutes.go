@@ -12,7 +12,6 @@ func RegisterFileRoutes(router *gin.Engine, fileController *fileController.FileC
 	{
 		routerGroup.POST("/logo", middleware.JWTMiddleware(), fileController.UploadFile)
 		routerGroup.POST("/cv", middleware.JWTMiddleware(), fileController.UploadFile)
-		routerGroup.DELETE("/logo", middleware.JWTMiddleware(), fileController.UploadFile)
-		routerGroup.DELETE("/cv", middleware.JWTMiddleware(), fileController.UploadFile)
+		routerGroup.DELETE("/logo", middleware.JWTMiddleware(), fileController.DeleteFile)
 	}
 }

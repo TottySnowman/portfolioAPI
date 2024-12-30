@@ -32,15 +32,19 @@ func (con *FileController) UploadFile(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, gin.H{"filePath": uploadPath})
-	return
 }
 
 func (con *FileController) DeleteFile(context *gin.Context) {
-	path, pathExists := context.GetPostForm("deletePath")
-	if !pathExists {
+	path := context.PostForm("filePath")
+	if path == "" {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
-	println(path)
+	if err := con.fileService.HandleFileDelete(context.FullPath(), path); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	context.Status(http.StatusOK)
 }

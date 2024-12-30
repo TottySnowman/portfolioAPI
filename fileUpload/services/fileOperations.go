@@ -6,5 +6,5 @@ type FileUploader interface {
 	Upload(path string, file *multipart.FileHeader) (string, error)
 }
 type FileDeleter interface {
-	Delete(path string) error
+	Delete(requestPath string, filePath string) error
 }

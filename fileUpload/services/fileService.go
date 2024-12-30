@@ -36,3 +36,18 @@ func (service *FileService) ConvertLocalPathToPublicPath(localPath string) strin
   convertedPath = "/" + convertedPath
 	return convertedPath
 }
+
+func (service *FileService) HandleFileDelete(requestpath string, filePath string) (error) {
+	convertedPath := service.ConvertPublicPathToLocalPath(filePath)
+	err := service.deleter.Delete(requestpath, convertedPath)
+	if err != nil {
+		return err
+	}
+
+  return nil
+}
+
+func (service *FileService) ConvertPublicPathToLocalPath(publicPath string) string {
+	convertedPath := "./public" + publicPath
+	return convertedPath
+}
