@@ -27,7 +27,7 @@ func (con *FileController) UploadFile(context *gin.Context) {
 	uploadPath, err := con.fileService.HandleFileUpload(context.FullPath(), file)
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -25,17 +26,19 @@ func (handler *FileUploadHandler) Upload(filePath string, file *multipart.FileHe
 
 func (handler *FileUploadHandler) logoUpload(file *multipart.FileHeader) (string, error) {
 	directory := filepath.Dir("./public/logo/")
+	allowedMimeTypes := []string{"image/png", "image/webp", "image/svg+xml", "image/jpeg"}
 
-  return handler.handleFileUpload(file, directory)
+	return handler.handleFileUpload(file, directory, allowedMimeTypes)
 }
 
 func (handler *FileUploadHandler) cvUpload(file *multipart.FileHeader) (string, error) {
 	directory := filepath.Dir("./public/cv/")
+	allowedMimeTypes := []string{"application/pdf"}
 
-  return handler.handleFileUpload(file, directory)
+	return handler.handleFileUpload(file, directory, allowedMimeTypes)
 }
 
-func (handler *FileUploadHandler) handleFileUpload(file *multipart.FileHeader, filePath string,) (string, error) {
+func (handler *FileUploadHandler) handleFileUpload(file *multipart.FileHeader, filePath string, allowedMimeTypes []string) (string, error) {
 	outputPath := filepath.Join(filePath, filepath.Base(file.Filename))
 
 	if err := handler.ensureDirectoryExists(filePath); err != nil {
@@ -47,6 +50,11 @@ func (handler *FileUploadHandler) handleFileUpload(file *multipart.FileHeader, f
 		return "", err
 	}
 
+	if !handler.validateFileMimeType(openFile, allowedMimeTypes) {
+    print("AYO NOT ALLOWED")
+		return "", errors.New("Invalid mime type!")
+	}
+
 	destinationFile, err := handler.createDestinationFile(outputPath)
 	if err != nil {
 		return "", err
@@ -55,6 +63,32 @@ func (handler *FileUploadHandler) handleFileUpload(file *multipart.FileHeader, f
 	err = handler.copyFile(destinationFile, openFile)
 
 	return outputPath, nil
+}
+
+func (handler *FileUploadHandler) validateFileMimeType(openFile multipart.File, allowedMimeTypes []string) bool {
+	fileType, err := handler.getFileType(openFile)
+	if err != nil {
+		return false
+	}
+
+	for _, allowedMimeType := range allowedMimeTypes {
+		if allowedMimeType == fileType {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (handler *FileUploadHandler) getFileType(file multipart.File) (string, error) {
+	buffer := make([]byte, 512)
+	_, err := file.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	file.Seek(0, 0)
+
+	return http.DetectContentType(buffer), nil
 }
 
 func (handler *FileUploadHandler) ensureDirectoryExists(directoryPath string) error {
@@ -92,4 +126,3 @@ func (handler *FileUploadHandler) copyFile(destinationFile *os.File, openFile mu
 
 	return nil
 }
-
