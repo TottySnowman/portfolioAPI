@@ -1,6 +1,9 @@
 package fileServices
 
-import "mime/multipart"
+import (
+	"mime/multipart"
+	"strings"
+)
 
 type FileService struct {
 	uploader FileUploader
@@ -20,5 +23,16 @@ func (service *FileService) HandleFileUpload(path string, file *multipart.FileHe
 		return "", err
 	}
 
-	return uploadedPath, nil
+	convertedPath := service.ConvertLocalPathToPublicPath(uploadedPath)
+
+	print(convertedPath)
+	return convertedPath, nil
+}
+
+func (service *FileService) ConvertLocalPathToPublicPath(localPath string) string {
+	splitted := strings.Split(localPath, "/")
+
+	convertedPath := strings.Join(splitted[1:], "/")
+
+	return convertedPath
 }
