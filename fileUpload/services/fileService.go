@@ -25,7 +25,6 @@ func (service *FileService) HandleFileUpload(path string, file *multipart.FileHe
 
 	convertedPath := service.ConvertLocalPathToPublicPath(uploadedPath)
 
-	print(convertedPath)
 	return convertedPath, nil
 }
 
@@ -34,5 +33,6 @@ func (service *FileService) ConvertLocalPathToPublicPath(localPath string) strin
 
 	convertedPath := strings.Join(splitted[1:], "/")
 
+  convertedPath = "/" + convertedPath
 	return convertedPath
 }
