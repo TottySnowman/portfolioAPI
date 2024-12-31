@@ -77,6 +77,7 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 
 	apiURL := os.Getenv("API_ENDPOINT_URL")
 
+  //apiURL = "http://localhost:6001"
 	projectMap := make(map[int]*projectModel.ProjectDisplay)
 	for _, project := range projects {
 		_, projectExists := projectMap[project.ProjectID]

@@ -51,7 +51,6 @@ func (handler *FileUploadHandler) handleFileUpload(file *multipart.FileHeader, f
 	}
 
 	if !handler.validateFileMimeType(openFile, allowedMimeTypes) {
-    print("AYO NOT ALLOWED")
 		return "", errors.New("Invalid mime type!")
 	}
 
@@ -113,7 +112,6 @@ func (handler *FileUploadHandler) createDestinationFile(filePath string) (*os.Fi
 	if err != nil {
 		return nil, err
 	}
-	defer destinationFile.Close()
 
 	return destinationFile, nil
 }

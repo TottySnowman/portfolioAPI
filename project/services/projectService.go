@@ -25,7 +25,7 @@ func (service *ProjectService) GetAllProjects(includeHidden bool) []projectModel
 
 func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
 	databaseProject := GetDbProjectFromDisplay(project)
-  _, insertError := service.repository.Insert(&databaseProject)
+	_, insertError := service.repository.Insert(&databaseProject)
 
 	if insertError != nil {
 		return nil, insertError
@@ -33,12 +33,12 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
 
 	service.insertIntoProjectTag(project.Tags, databaseProject.ID)
 
-  mappedProject, err := service.GetProjectById(databaseProject.ID, true)
-  if err != nil{
-    return nil, err
-  }
+	mappedProject, err := service.GetProjectById(databaseProject.ID, true)
+	if err != nil {
+		return nil, err
+	}
 
-  return mappedProject, nil
+	return mappedProject, nil
 }
 
 func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
@@ -51,12 +51,12 @@ func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*pro
 
 	service.insertIntoProjectTag(project.Tags, project.ProjectID)
 
-  mappedProject, err := service.GetProjectById(databaseProject.ID, true)
-  if err != nil{
-    return nil, err
-  }
+	mappedProject, err := service.GetProjectById(databaseProject.ID, true)
+	if err != nil {
+		return nil, err
+	}
 
-  return mappedProject, nil
+	return mappedProject, nil
 }
 
 func (service *ProjectService) Delete(projectID int) error {
@@ -76,8 +76,8 @@ func (service *ProjectService) insertIntoProjectTag(projectTags []tagModel.JsonT
 
 }
 
-func (service *ProjectService) GetProjectById(projectId int, includeHidden bool)(*projectModel.ProjectDisplay, error) {
-  return service.repository.GetProjectById(projectId, includeHidden)
+func (service *ProjectService) GetProjectById(projectId int, includeHidden bool) (*projectModel.ProjectDisplay, error) {
+	return service.repository.GetProjectById(projectId, includeHidden)
 }
 
 func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel.JsonTag) []tagModel.Tag {
@@ -109,5 +109,6 @@ func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.P
 		DemoLink:        display.Demo_Link,
 		GithubLink:      display.Github_Link,
 		ProjectStatusID: uint(display.Status.StatusID),
+		LogoPath:        display.Logo_Path,
 	}
 }
