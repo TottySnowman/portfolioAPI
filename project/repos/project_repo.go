@@ -138,6 +138,7 @@ func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) (*projec
 		return nil, errors.New("Project not found")
 	}
 
+  projectToUpdate.LogoPath = dbProject.LogoPath
 	updateProject := repo.db.Model(&dbProject).Select("*").Omit("CreatedAt").Updates(projectToUpdate)
 
 	if updateProject.Error != nil {
