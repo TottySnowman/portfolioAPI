@@ -77,6 +77,7 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 
 	apiURL := os.Getenv("API_ENDPOINT_URL")
 
+  //apiURL = "http://localhost:6001"
 	projectMap := make(map[int]*projectModel.ProjectDisplay)
 	for _, project := range projects {
 		_, projectExists := projectMap[project.ProjectID]
@@ -137,6 +138,7 @@ func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) (*projec
 		return nil, errors.New("Project not found")
 	}
 
+  projectToUpdate.LogoPath = dbProject.LogoPath
 	updateProject := repo.db.Model(&dbProject).Select("*").Omit("CreatedAt").Updates(projectToUpdate)
 
 	if updateProject.Error != nil {
