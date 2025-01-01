@@ -62,7 +62,7 @@ func getServices(repos repos) services {
 
 	fileService := fileServices.NewFileService(uploader, deleter)
 	return services{
-		projectService: projectService.NewProjectService(repos.projectRepo, tagService),
+		projectService: projectService.NewProjectService(repos.projectRepo, tagService, fileService),
 		tagService:     tagService,
 		statusService:  statusService.NewStatusService(repos.statusRepo),
 		fileService:    fileService,

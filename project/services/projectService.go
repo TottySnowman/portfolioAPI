@@ -1,21 +1,28 @@
 package projectService
 
 import (
+	"os"
+	fileServices "portfolioAPI/fileUpload/services"
 	projectModel "portfolioAPI/project/models"
 	project_repo "portfolioAPI/project/repos"
 	tagModel "portfolioAPI/tag/models"
 	tagService "portfolioAPI/tag/services"
+	"strings"
 )
 
 type ProjectService struct {
-	repository *project_repo.Project_Repo
-	tagService *tagService.TagService
+	repository  *project_repo.Project_Repo
+	tagService  *tagService.TagService
+	fileService *fileServices.FileService
 }
 
-func NewProjectService(projectRepo *project_repo.Project_Repo, tagService *tagService.TagService) *ProjectService {
+func NewProjectService(projectRepo *project_repo.Project_Repo,
+	tagService *tagService.TagService,
+	fileService *fileServices.FileService) *ProjectService {
 	return &ProjectService{
-		repository: projectRepo,
-		tagService: tagService,
+		repository:  projectRepo,
+		tagService:  tagService,
+		fileService: fileService,
 	}
 }
 
@@ -59,10 +66,6 @@ func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*pro
 	return mappedProject, nil
 }
 
-func (service *ProjectService) Delete(projectID int) error {
-	return service.repository.Delete(projectID)
-}
-
 func (service *ProjectService) insertIntoProjectTag(projectTags []tagModel.JsonTag, projectId int) {
 	convertedTags := service.convertDisplayTagsToDbTags(projectTags)
 	tagIds := getTagIds(convertedTags)
@@ -76,20 +79,6 @@ func (service *ProjectService) insertIntoProjectTag(projectTags []tagModel.JsonT
 
 }
 
-func (service *ProjectService) GetProjectById(projectId int, includeHidden bool) (*projectModel.ProjectDisplay, error) {
-	return service.repository.GetProjectById(projectId, includeHidden)
-}
-
-func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel.JsonTag) []tagModel.Tag {
-	var convertedTags []tagModel.Tag
-	for _, tag := range projectTags {
-		println(tag.TagId)
-		convertedTags = append(convertedTags, service.tagService.ConvertDisplayTagToDbTag(tag))
-	}
-
-	return convertedTags
-}
-
 func getTagIds(tags []tagModel.Tag) []int {
 	var tagIds []int
 	for _, tag := range tags {
@@ -98,6 +87,39 @@ func getTagIds(tags []tagModel.Tag) []int {
 
 	return tagIds
 }
+
+func (service *ProjectService) Delete(projectID int) error {
+	existingProject, err := service.GetProjectById(projectID, false)
+	if err != nil {
+		return err
+	}
+
+	err = service.repository.Delete(projectID)
+	if err != nil {
+		return err
+	}
+
+  existingProject.Logo_Path = service.removeUrlPrefix(existingProject.Logo_Path)
+	return service.fileService.HandleFileDelete("/logo", existingProject.Logo_Path)
+}
+
+func (service *ProjectService) removeUrlPrefix(url string) string{
+  return strings.TrimPrefix(url, os.Getenv("API_ENDPOINT_URL"))
+}
+
+func (service *ProjectService) GetProjectById(projectId int, includeHidden bool) (*projectModel.ProjectDisplay, error) {
+	return service.repository.GetProjectById(projectId, includeHidden)
+}
+
+func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel.JsonTag) []tagModel.Tag {
+	var convertedTags []tagModel.Tag
+	for _, tag := range projectTags {
+		convertedTags = append(convertedTags, service.tagService.ConvertDisplayTagToDbTag(tag))
+	}
+
+	return convertedTags
+}
+
 
 func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.Project {
 	return projectModel.Project{
