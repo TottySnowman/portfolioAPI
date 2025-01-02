@@ -11,13 +11,13 @@ import (
 
 type FileUploadHandler struct{}
 
-func (handler *FileUploadHandler) Upload(filePath string, file *multipart.FileHeader) (string, error) {
-	switch filePath {
+func (handler *FileUploadHandler) Upload(uploadPath string, file *multipart.FileHeader, language string) (string, error) {
+	switch uploadPath {
 	case "/logo":
 		return handler.logoUpload(file)
 
 	case "/cv":
-		return handler.cvUpload(file)
+		return handler.cvUpload(file, language)
 
 	default:
 		return "", errors.New("Invalid path")
@@ -31,9 +31,16 @@ func (handler *FileUploadHandler) logoUpload(file *multipart.FileHeader) (string
 	return handler.handleFileUpload(file, directory, allowedMimeTypes)
 }
 
-func (handler *FileUploadHandler) cvUpload(file *multipart.FileHeader) (string, error) {
-	directory := filepath.Dir("./public/cv/")
+func (handler *FileUploadHandler) cvUpload(file *multipart.FileHeader, language string) (string, error) {
+  if language == ""{
+    return "", errors.New("No Accept language found!")
+  }
+  uploadPath := filepath.Join("./public/cv/", language)
+  uploadPath = uploadPath + "/"
+
+	directory := filepath.Dir(uploadPath)
 	allowedMimeTypes := []string{"application/pdf"}
+  file.Filename = "cv.pdf"
 
 	return handler.handleFileUpload(file, directory, allowedMimeTypes)
 }

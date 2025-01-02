@@ -24,7 +24,9 @@ func (con *FileController) UploadFile(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
-	uploadPath, err := con.fileService.HandleFileUpload(context.FullPath(), file)
+
+  acceptLanguage := con.getLanguageFromRequest(context)
+	uploadPath, err := con.fileService.HandleFileUpload(context.FullPath(), file, acceptLanguage)
 
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
@@ -32,6 +34,12 @@ func (con *FileController) UploadFile(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, gin.H{"filePath": uploadPath})
+}
+
+func (con *FileController) getLanguageFromRequest(context *gin.Context) string {
+	acceptLanguage := context.GetHeader("Accept-Language")
+
+  return acceptLanguage
 }
 
 func (con *FileController) DeleteFile(context *gin.Context) {

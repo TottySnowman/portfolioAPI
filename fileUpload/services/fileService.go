@@ -17,8 +17,8 @@ func NewFileService(uploader FileUploader, deleter FileDeleter) *FileService {
 	}
 }
 
-func (service *FileService) HandleFileUpload(path string, file *multipart.FileHeader) (string, error) {
-	uploadedPath, err := service.uploader.Upload(path, file)
+func (service *FileService) HandleFileUpload(uploadPath string, file *multipart.FileHeader, language string) (string, error) {
+	uploadedPath, err := service.uploader.Upload(uploadPath, file, language)
 	if err != nil {
 		return "", err
 	}
