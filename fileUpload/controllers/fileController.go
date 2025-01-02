@@ -25,7 +25,7 @@ func (con *FileController) UploadFile(context *gin.Context) {
 		return
 	}
 
-  acceptLanguage := con.getLanguageFromRequest(context)
+	acceptLanguage := con.getLanguageFromRequest(context)
 	uploadPath, err := con.fileService.HandleFileUpload(context.FullPath(), file, acceptLanguage)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func (con *FileController) UploadFile(context *gin.Context) {
 func (con *FileController) getLanguageFromRequest(context *gin.Context) string {
 	acceptLanguage := context.GetHeader("Accept-Language")
 
-  return acceptLanguage
+	return acceptLanguage
 }
 
 func (con *FileController) DeleteFile(context *gin.Context) {
