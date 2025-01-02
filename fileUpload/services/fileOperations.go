@@ -1,9 +1,11 @@
 package fileServices
 
-import "mime/multipart"
+import (
+	"mime/multipart"
+)
 
 type FileUploader interface {
-	Upload(path string, file *multipart.FileHeader) (string, error)
+	Upload(uploadPath string, file *multipart.FileHeader, language string) (string, error)
 }
 type FileDeleter interface {
 	Delete(requestPath string, filePath string) error

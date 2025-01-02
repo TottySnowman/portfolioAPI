@@ -19,6 +19,7 @@ func SetupRouter(router *gin.Engine, appContainer *dependencyinjection.AppContai
 	setupCors(router)
 	setupRoutes(router, appContainer)
 	setupLogoServ(router)
+	setupCvServ(router)
 }
 
 func setupCors(router *gin.Engine) {
@@ -51,4 +52,8 @@ func setupRoutes(router *gin.Engine, appContainer *dependencyinjection.AppContai
 
 func setupLogoServ(router *gin.Engine) {
 	router.Static("/logo", "./public/logo")
+}
+
+func setupCvServ(router *gin.Engine) {
+	router.Static("/cv", "./public/cv")
 }
