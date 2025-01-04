@@ -1,6 +1,7 @@
 package dependencyinjection
 
 import (
+	chatController "portfolioAPI/chatbot/controllers"
 	fileController "portfolioAPI/fileUpload/controllers"
 	fileHandler "portfolioAPI/fileUpload/handler"
 	fileServices "portfolioAPI/fileUpload/services"
@@ -20,6 +21,7 @@ type AppContainer struct {
 	TagController     *tagController.TagController
 	StatusController  *statusController.StatusController
 	FileController    *fileController.FileController
+	ChatController    *chatController.ChatController
 }
 
 type repos struct {
@@ -44,6 +46,7 @@ func NewAppContainer() *AppContainer {
 		TagController:     tagController.NewTagController(services.tagService),
 		StatusController:  statusController.NewStatusController(services.statusService),
 		FileController:    fileController.NewFileController(services.fileService),
+		ChatController:    chatController.NewChatController(),
 	}
 }
 

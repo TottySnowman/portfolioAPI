@@ -3,6 +3,7 @@ package router
 import (
 	"os"
 	authRouter "portfolioAPI/authentication/router"
+	chatRoutes "portfolioAPI/chatbot/router"
 	dependencyinjection "portfolioAPI/dependencyInjection"
 	fileRoutes "portfolioAPI/fileUpload/router"
 	project_routes "portfolioAPI/project/router"
@@ -45,7 +46,7 @@ func setupRoutes(router *gin.Engine, appContainer *dependencyinjection.AppContai
 	project_routes.RegisterProjectRoutes(router, appContainer.ProjectController)
 	tagRoutes.RegisterTagRoutes(router, appContainer.TagController)
 	statusRoutes.RegisterTagRoutes(router, appContainer.StatusController)
-
+	chatRoutes.RegisterChatRoutes(router, appContainer.ChatController)
 	fileRoutes.RegisterFileRoutes(router, appContainer.FileController)
 	authRouter.RegisterAuthRouter(router)
 }
