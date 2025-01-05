@@ -20,21 +20,37 @@ func NewChatController(embeddingService *chatService.EmbeddingService, vectorSer
 	}
 }
 
-func (con *ChatController) Test(context *gin.Context) {
-
+func (con *ChatController) Upsert(context *gin.Context) {
 	var prompt *chatModel.PromptModel
 	if err := context.ShouldBindJSON(&prompt); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
-	print(prompt)
-  err, vector := con.embeddingService.GetVectorByText(prompt.Prompt)
-  if err != nil{
-    panic(err.Error())
-  }
+	err, vector := con.embeddingService.GetVectorByText(prompt.Prompt)
+	if err != nil {
+		panic(err.Error())
+	}
 
-  //con.vectorService.CreateCollectionIfNeeded()
-  con.vectorService.InsertVector(vector, prompt.Prompt)
+	err = con.vectorService.UpsertVector(vector, *prompt)
+
+	context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+	return
+}
+
+func (con *ChatController) FullSync(context *gin.Context) {
+	var syncSettings *chatModel.SyncModel
+	if err := context.ShouldBindJSON(&syncSettings); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+}
+func (con *ChatController) Sync(context *gin.Context) {
+	var syncSettings *chatModel.SyncModel
+	if err := context.ShouldBindJSON(&syncSettings); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+
 
 }

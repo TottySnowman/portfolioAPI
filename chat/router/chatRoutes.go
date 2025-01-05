@@ -9,7 +9,7 @@ import (
 func RegisterChatRoutes(router *gin.Engine, chatController *chatController.ChatController) {
 	routerGroup := router.Group("/chat")
 	{
-		routerGroup.POST("",middleware.JWTMiddleware(), chatController.Test)
+		routerGroup.POST("",middleware.JWTMiddleware(), chatController.Upsert)
 	}
 }
 

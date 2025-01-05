@@ -2,6 +2,7 @@ package dependencyinjection
 
 import (
 	chatController "portfolioAPI/chat/controllers"
+	vectorRepo "portfolioAPI/chat/repos"
 	chatService "portfolioAPI/chat/services"
 	fileController "portfolioAPI/fileUpload/controllers"
 	fileHandler "portfolioAPI/fileUpload/handler"
@@ -29,6 +30,7 @@ type repos struct {
 	projectRepo *project_repo.Project_Repo
 	tagRepo     *tagRepo.TagRepo
 	statusRepo  *statusRepo.StatusRepo
+  vectorRepo  *vectorRepo.VectorRepo
 }
 
 type services struct {
@@ -58,6 +60,7 @@ func getRepos() repos {
 		projectRepo: project_repo.NewProjectRepo(),
 		tagRepo:     tagRepo.NewTagRepo(),
 		statusRepo:  statusRepo.NewStatusRepo(),
+    vectorRepo:  vectorRepo.NewVectorRepo(),
 	}
 }
 
@@ -73,6 +76,6 @@ func getServices(repos repos) services {
 		statusService:    statusService.NewStatusService(repos.statusRepo),
 		fileService:      fileService,
 		embeddingService: chatService.NewEmbeddingService(),
-		vectorService:    chatService.NewVectorService(),
+		vectorService:    chatService.NewVectorService(repos.vectorRepo),
 	}
 }

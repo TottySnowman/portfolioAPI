@@ -1,67 +1,44 @@
 package chatService
 
 import (
-	"context"
 	chatModel "portfolioAPI/chat/models"
-"math/rand/v2"
-	"github.com/qdrant/go-client/qdrant"
+	vectorRepo "portfolioAPI/chat/repos"
 )
 
 type VectorService struct {
-	vectorClient *qdrant.Client
+	vectorRepo *vectorRepo.VectorRepo
 }
 
-const collectionName = "portfolio"
-const vectorSize = uint64(384)
-
-func NewVectorService() *VectorService {
-	client, _ := qdrant.NewClient(&qdrant.Config{
-		Host: "qdrant",
-		Port: 6334,
-	})
+func NewVectorService(vectorRepo *vectorRepo.VectorRepo) *VectorService {
+  if !vectorRepo.DoesCollectionExist(){
+    vectorRepo.CreateCollection()
+  }
 
 	return &VectorService{
-		vectorClient: client,
+		vectorRepo: vectorRepo,
 	}
 }
 
-func (service *VectorService) CreateCollectionIfNeeded() {
-	exists, err := service.vectorClient.CollectionExists(context.Background(), collectionName)
-
-	if err != nil {
-		panic("Failed to connect to vector DB")
-	}
-
-	if !exists {
-		service.createCollection()
-	}
+func (service *VectorService) UpsertVector(vector chatModel.FeatureExtractionResponse, promptModel chatModel.PromptModel) error {
+	return service.vectorRepo.UpsertVector(vector, promptModel)
 }
 
-func (service *VectorService) createCollection() {
-	service.vectorClient.CreateCollection(context.Background(), &qdrant.CreateCollection{
-		CollectionName: collectionName,
-		VectorsConfig: qdrant.NewVectorsConfig(&qdrant.VectorParams{
-			Size:     vectorSize,
-			Distance: qdrant.Distance_Cosine,
-		}),
-	})
-}
-
-func (service *VectorService) InsertVector(vector chatModel.FeatureExtractionResponse, query string) {
-	service.CreateCollectionIfNeeded()
-
-	_, err := service.vectorClient.Upsert(context.Background(), &qdrant.UpsertPoints{
-		CollectionName: collectionName,
-		Points: []*qdrant.PointStruct{
-			{
-				Id:      qdrant.NewIDNum(uint64(rand.IntN(10000))),
-				Vectors: qdrant.NewVectors(vector...),
-				Payload: qdrant.NewValueMap(map[string]any{"text": query}),
-			},
-		},
-	})
-
-	if err != nil {
-		return
+func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) error {
+	if !syncModel.ResetProject && !syncModel.ResetPersonal {
+		return nil
 	}
+
+	if syncModel.ResetProject && syncModel.ResetPersonal {
+		return service.vectorRepo.FullResetDatabase()
+	}
+
+	if syncModel.ResetProject {
+		return service.vectorRepo.ResetProject()
+	}
+
+	if syncModel.ResetPersonal {
+		return service.vectorRepo.ResetPersonal()
+	}
+
+	return nil
 }
