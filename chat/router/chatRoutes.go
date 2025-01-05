@@ -1,7 +1,7 @@
 package chatRoutes
 
 import (
-	chatController "portfolioAPI/chatbot/controllers"
+	chatController "portfolioAPI/chat/controllers"
 	middleware "portfolioAPI/router/authorization"
 	"github.com/gin-gonic/gin"
 )

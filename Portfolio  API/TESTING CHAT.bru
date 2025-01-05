@@ -1,0 +1,17 @@
+meta {
+  name: TESTING CHAT
+  type: http
+  seq: 12
+}
+
+post {
+  url: http://localhost:6001/chat
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Prompt": "Golang"
+  }
+}

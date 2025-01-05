@@ -1,7 +1,8 @@
 package dependencyinjection
 
 import (
-	chatController "portfolioAPI/chatbot/controllers"
+	chatController "portfolioAPI/chat/controllers"
+	chatService "portfolioAPI/chat/services"
 	fileController "portfolioAPI/fileUpload/controllers"
 	fileHandler "portfolioAPI/fileUpload/handler"
 	fileServices "portfolioAPI/fileUpload/services"
@@ -31,10 +32,12 @@ type repos struct {
 }
 
 type services struct {
-	projectService *projectService.ProjectService
-	tagService     *tagService.TagService
-	statusService  *statusService.StatusService
-	fileService    *fileServices.FileService
+	projectService   *projectService.ProjectService
+	tagService       *tagService.TagService
+	statusService    *statusService.StatusService
+	fileService      *fileServices.FileService
+	embeddingService *chatService.EmbeddingService
+	vectorService    *chatService.VectorService
 }
 
 func NewAppContainer() *AppContainer {
@@ -46,7 +49,7 @@ func NewAppContainer() *AppContainer {
 		TagController:     tagController.NewTagController(services.tagService),
 		StatusController:  statusController.NewStatusController(services.statusService),
 		FileController:    fileController.NewFileController(services.fileService),
-		ChatController:    chatController.NewChatController(),
+		ChatController:    chatController.NewChatController(services.embeddingService, services.vectorService),
 	}
 }
 
@@ -65,9 +68,11 @@ func getServices(repos repos) services {
 
 	fileService := fileServices.NewFileService(uploader, deleter)
 	return services{
-		projectService: projectService.NewProjectService(repos.projectRepo, tagService, fileService),
-		tagService:     tagService,
-		statusService:  statusService.NewStatusService(repos.statusRepo),
-		fileService:    fileService,
+		projectService:   projectService.NewProjectService(repos.projectRepo, tagService, fileService),
+		tagService:       tagService,
+		statusService:    statusService.NewStatusService(repos.statusRepo),
+		fileService:      fileService,
+		embeddingService: chatService.NewEmbeddingService(),
+		vectorService:    chatService.NewVectorService(),
 	}
 }

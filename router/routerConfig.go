@@ -3,7 +3,7 @@ package router
 import (
 	"os"
 	authRouter "portfolioAPI/authentication/router"
-	chatRoutes "portfolioAPI/chatbot/router"
+	chatRoutes "portfolioAPI/chat/router"
 	dependencyinjection "portfolioAPI/dependencyInjection"
 	fileRoutes "portfolioAPI/fileUpload/router"
 	project_routes "portfolioAPI/project/router"
