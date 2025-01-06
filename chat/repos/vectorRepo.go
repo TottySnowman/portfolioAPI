@@ -51,7 +51,6 @@ func (repo *VectorRepo) CreateCollection() error {
 }
 
 func (repo *VectorRepo) UpsertVector(vector chatModel.FeatureExtractionResponse, promptModel chatModel.PromptModel) error {
-
 	_, err := repo.client.Upsert(context.Background(), &qdrant.UpsertPoints{
 		CollectionName: collectionName,
 		Points: []*qdrant.PointStruct{

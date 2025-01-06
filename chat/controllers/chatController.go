@@ -27,7 +27,8 @@ func (con *ChatController) Upsert(context *gin.Context) {
 		return
 	}
 
-	err, vector := con.embeddingService.GetVectorByText(prompt.Prompt)
+	vector, err := con.embeddingService.GetVectorByText(prompt.Prompt)
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -39,11 +40,17 @@ func (con *ChatController) Upsert(context *gin.Context) {
 }
 
 func (con *ChatController) FullSync(context *gin.Context) {
-	var syncSettings *chatModel.SyncModel
-	if err := context.ShouldBindJSON(&syncSettings); err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+	syncSettings := &chatModel.SyncModel{
+		ResetProject:  true,
+		ResetPersonal: true,
+	}
+
+	if err := con.vectorService.ResetDatabase(syncSettings); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
 		return
 	}
+
+	con.vectorService.InsertProjectsAsync()
 }
 func (con *ChatController) Sync(context *gin.Context) {
 	var syncSettings *chatModel.SyncModel
@@ -52,5 +59,9 @@ func (con *ChatController) Sync(context *gin.Context) {
 		return
 	}
 
+	if err := con.vectorService.ResetDatabase(syncSettings); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
+		return
+	}
 
 }

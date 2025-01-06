@@ -30,7 +30,7 @@ type repos struct {
 	projectRepo *project_repo.Project_Repo
 	tagRepo     *tagRepo.TagRepo
 	statusRepo  *statusRepo.StatusRepo
-  vectorRepo  *vectorRepo.VectorRepo
+	vectorRepo  *vectorRepo.VectorRepo
 }
 
 type services struct {
@@ -60,22 +60,25 @@ func getRepos() repos {
 		projectRepo: project_repo.NewProjectRepo(),
 		tagRepo:     tagRepo.NewTagRepo(),
 		statusRepo:  statusRepo.NewStatusRepo(),
-    vectorRepo:  vectorRepo.NewVectorRepo(),
+		vectorRepo:  vectorRepo.NewVectorRepo(),
 	}
 }
 
 func getServices(repos repos) services {
-	tagService := tagService.NewTagService(repos.tagRepo)
 	uploader := &fileHandler.FileUploadHandler{}
 	deleter := &fileHandler.FileDeleteHandler{}
 
 	fileService := fileServices.NewFileService(uploader, deleter)
+	tagService := tagService.NewTagService(repos.tagRepo)
+	projectService := projectService.NewProjectService(repos.projectRepo, tagService, fileService)
+  embeddingService := chatService.NewEmbeddingService()
+
 	return services{
-		projectService:   projectService.NewProjectService(repos.projectRepo, tagService, fileService),
+		projectService:   projectService,
 		tagService:       tagService,
 		statusService:    statusService.NewStatusService(repos.statusRepo),
 		fileService:      fileService,
-		embeddingService: chatService.NewEmbeddingService(),
-		vectorService:    chatService.NewVectorService(repos.vectorRepo),
+		embeddingService: embeddingService,
+		vectorService:    chatService.NewVectorService(repos.vectorRepo, projectService, embeddingService),
 	}
 }
