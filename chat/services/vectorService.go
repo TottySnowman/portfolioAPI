@@ -30,10 +30,6 @@ func NewVectorService(vectorRepo *vectorRepo.VectorRepo,
 	}
 }
 
-func (service *VectorService) UpsertVector(vector chatModel.FeatureExtractionResponse, promptModel chatModel.PromptModel) error {
-	return service.vectorRepo.UpsertVector(vector, promptModel)
-}
-
 func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) error {
 	if !syncModel.ResetProject && !syncModel.ResetPersonal {
 		return nil

@@ -2,8 +2,12 @@ package vectorRepo
 
 import (
 	"context"
-	"github.com/qdrant/go-client/qdrant"
 	chatModel "portfolioAPI/chat/models"
+	projectModel "portfolioAPI/project/models"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/qdrant/go-client/qdrant"
 )
 
 type VectorRepo struct {
@@ -50,23 +54,56 @@ func (repo *VectorRepo) CreateCollection() error {
 	return err
 }
 
-func (repo *VectorRepo) UpsertVector(vector chatModel.FeatureExtractionResponse, promptModel chatModel.PromptModel) error {
-	_, err := repo.client.Upsert(context.Background(), &qdrant.UpsertPoints{
-		CollectionName: collectionName,
-		Points: []*qdrant.PointStruct{
-			{
-				Id:      qdrant.NewIDNum(uint64(promptModel.ProjectId)),
-				Vectors: qdrant.NewVectors(vector...),
-				Payload: qdrant.NewValueMap(map[string]any{"text": promptModel.Prompt}),
-			},
-		},
-	})
+func (repo *VectorRepo) UpsertProject(modifyProjectModel *chatModel.ModifyProjectModel) error {
+  projectPointId := repo.getExistingProjectPoint(modifyProjectModel.ProjectPayload.ProjectID)
 
+	if projectPointId == nil {
+		projectPointId = qdrant.NewID(uuid.NewString())
+	}
+
+  convertedProject := convertProjectDisplayToPayload(modifyProjectModel.ProjectPayload, modifyProjectModel.ProjectTags)
+
+	err := repo.upsertVector(projectPointId, modifyProjectModel.Vector, convertedProject)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (repo *VectorRepo) getExistingProjectPoint(projectId int) *qdrant.PointId{
+	// TODO do the project check
+  return nil
+}
+
+func convertProjectDisplayToPayload(projectDisplay projectModel.ProjectDisplay, tags []string) map[string]interface{} {
+	return map[string]interface{}{
+		"project_id":  projectDisplay.ProjectID,
+		"status":      projectDisplay.Status,
+		"name":        projectDisplay.Name,
+		"about":       projectDisplay.About,
+		"github_link": projectDisplay.Github_Link,
+		"demo_link":   projectDisplay.Demo_Link,
+		"logo_path":   projectDisplay.Logo_Path,
+		"tags":        tags,
+		"dev_date":    projectDisplay.DevDate.Format(time.RFC3339),
+		"hidden":      projectDisplay.Hidden,
+	}
+}
+
+func (repo *VectorRepo) upsertVector(pointId *qdrant.PointId, vector chatModel.FeatureExtractionResponse, payload map[string]interface{}) error {
+	_, err := repo.client.Upsert(context.Background(), &qdrant.UpsertPoints{
+		CollectionName: collectionName,
+		Points: []*qdrant.PointStruct{
+			{
+				Id:      pointId,
+				Vectors: qdrant.NewVectors(vector...),
+				Payload: qdrant.NewValueMap(payload),
+			},
+		},
+	})
+
+	return err
 }
 
 func (repo *VectorRepo) FullResetDatabase() error {

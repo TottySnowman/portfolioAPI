@@ -27,13 +27,13 @@ func (con *ChatController) Upsert(context *gin.Context) {
 		return
 	}
 
-	vector, err := con.embeddingService.GetVectorByText(prompt.Prompt)
+	_, err := con.embeddingService.GetVectorByText(prompt.Prompt)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	err = con.vectorService.UpsertVector(vector, *prompt)
+	//err = con.vectorService.UpsertVector(vector, *prompt)
 
 	context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 	return
