@@ -4,6 +4,8 @@ import (
 	"context"
 	chatModel "portfolioAPI/chat/models"
 	projectModel "portfolioAPI/project/models"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -54,14 +56,14 @@ func (repo *VectorRepo) CreateCollection() error {
 	return err
 }
 
-func (repo *VectorRepo) UpsertProject(modifyProjectModel *chatModel.ModifyProjectModel) error {
-  projectPointId := repo.getExistingProjectPoint(modifyProjectModel.ProjectPayload.ProjectID)
+func (repo *VectorRepo) UpsertProject(modifyProjectModel chatModel.ModifyProjectModel) error {
+	projectPointId := repo.getExistingProjectPoint(modifyProjectModel.ProjectPayload.ProjectID)
 
 	if projectPointId == nil {
 		projectPointId = qdrant.NewID(uuid.NewString())
 	}
 
-  convertedProject := convertProjectDisplayToPayload(modifyProjectModel.ProjectPayload, modifyProjectModel.ProjectTags)
+	convertedProject := convertProjectDisplayToPayload(modifyProjectModel.ProjectPayload, modifyProjectModel.ProjectTags)
 
 	err := repo.upsertVector(projectPointId, modifyProjectModel.Vector, convertedProject)
 	if err != nil {
@@ -71,21 +73,38 @@ func (repo *VectorRepo) UpsertProject(modifyProjectModel *chatModel.ModifyProjec
 	return nil
 }
 
-func (repo *VectorRepo) getExistingProjectPoint(projectId int) *qdrant.PointId{
-	// TODO do the project check
-  return nil
+func (repo *VectorRepo) getExistingProjectPoint(projectId int) *qdrant.PointId {
+	filter := &qdrant.Filter{
+		Must: []*qdrant.Condition{
+			qdrant.NewMatch("projectId", strconv.Itoa(projectId)),
+		},
+	}
+
+	point, err := repo.client.Scroll(context.Background(), &qdrant.ScrollPoints{
+		CollectionName: collectionName,
+		Filter:         filter,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	if point != nil && len(point) > 0 {
+
+		return point[0].Id
+	}
+	return nil
 }
 
 func convertProjectDisplayToPayload(projectDisplay projectModel.ProjectDisplay, tags []string) map[string]interface{} {
 	return map[string]interface{}{
 		"project_id":  projectDisplay.ProjectID,
-		"status":      projectDisplay.Status,
+		"status":      projectDisplay.Status.Status,
 		"name":        projectDisplay.Name,
 		"about":       projectDisplay.About,
 		"github_link": projectDisplay.Github_Link,
 		"demo_link":   projectDisplay.Demo_Link,
 		"logo_path":   projectDisplay.Logo_Path,
-		"tags":        tags,
+		"tags":        strings.Join(tags, ","),
 		"dev_date":    projectDisplay.DevDate.Format(time.RFC3339),
 		"hidden":      projectDisplay.Hidden,
 	}

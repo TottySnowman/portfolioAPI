@@ -36,7 +36,12 @@ func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) erro
 	}
 
 	if syncModel.ResetProject && syncModel.ResetPersonal {
-		return service.vectorRepo.FullResetDatabase()
+    err := service.vectorRepo.FullResetDatabase()
+    if err != nil{
+      return err
+    }
+
+    service.vectorRepo.CreateCollection()
 	}
 
 	if syncModel.ResetProject {
@@ -66,10 +71,14 @@ func (service *VectorService) insertProject(project projectModel.ProjectDisplay)
   if err != nil{
     // TODO logging
   }
-  print(vector)
 
+  modifyProjectModel := &chatModel.ModifyProjectModel{
+    ProjectPayload: project,
+    Vector: vector,
+    ProjectTags: tags,
+  }
 
-  //service.UpsertVector(vector, )
+  service.vectorRepo.UpsertProject(*modifyProjectModel)
 }
 
 func extractTags(tags []tagModel.JsonTag) []string {
