@@ -32,10 +32,6 @@ func (con *ChatController) Upsert(context *gin.Context) {
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 	}
-
-	//err = con.vectorService.UpsertVector(vector, *prompt)
-
-	return
 }
 
 func (con *ChatController) FullSync(context *gin.Context) {
@@ -51,6 +47,26 @@ func (con *ChatController) FullSync(context *gin.Context) {
 
 	con.vectorService.InsertProjectsAsync()
 }
+
+func (con *ChatController) Chat(context *gin.Context) {
+	var prompt *chatModel.PromptModel
+
+	if err := context.ShouldBindJSON(&prompt); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+
+	//vector, err := con.embeddingService.GetVectorByText(prompt.Prompt)
+
+  _, err := con.vectorService.GetChatMessage(prompt)
+
+  if err != nil{
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+  }
+
+}
+
 func (con *ChatController) Sync(context *gin.Context) {
 	var syncSettings *chatModel.SyncModel
 	if err := context.ShouldBindJSON(&syncSettings); err != nil {

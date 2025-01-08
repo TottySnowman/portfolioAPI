@@ -90,3 +90,15 @@ func extractTags(tags []tagModel.JsonTag) []string {
 
 	return concatTags
 }
+
+func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel)(*string, error){
+  vector, err := service.embeddingService.GetVectorByText(prompt.Prompt)
+  if err != nil{
+    println(err.Error())
+    return nil, err
+  }
+
+  service.vectorRepo.SearchSimilarity(vector)
+
+  return nil, nil
+}

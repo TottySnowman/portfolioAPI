@@ -2,6 +2,9 @@ package vectorRepo
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"log"
 	chatModel "portfolioAPI/chat/models"
 	projectModel "portfolioAPI/project/models"
 	"strconv"
@@ -123,6 +126,38 @@ func (repo *VectorRepo) upsertVector(pointId *qdrant.PointId, vector chatModel.F
 	})
 
 	return err
+}
+
+func (repo *VectorRepo) SearchSimilarity(vector chatModel.FeatureExtractionResponse) ([]string, error) {
+	var limit uint64 = 3
+
+	searchResults, err := repo.client.Query(context.Background(), &qdrant.QueryPoints{
+		CollectionName: collectionName,
+		Query:          qdrant.NewQuery(vector...),
+		WithPayload:    qdrant.NewWithPayload(true),
+		Limit:          &limit,
+	})
+
+	if err != nil {
+		println(err.Error())
+		return make([]string, 0), err
+	}
+
+	for i, result := range searchResults {
+		payload := result.GetPayload()
+
+		// Marshal payload into JSON
+		_, err := json.Marshal(payload)
+		if err != nil {
+			log.Printf("Error marshaling payload for result %d: %v\n", i, err)
+			continue
+		}
+
+		// Print the JSON string
+		//fmt.Printf("Result %d Payload as JSON: %s\n", i, string(jsonData))
+	}
+fmt.Println(searchResults[0].GetPayload())
+	return make([]string, 0), nil
 }
 
 func (repo *VectorRepo) FullResetDatabase() error {
