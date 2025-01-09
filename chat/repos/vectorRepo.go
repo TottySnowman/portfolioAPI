@@ -146,18 +146,32 @@ func (repo *VectorRepo) SearchSimilarity(vector chatModel.FeatureExtractionRespo
 	for i, result := range searchResults {
 		payload := result.GetPayload()
 
+		project := projectModel.ProjectDisplay{}
+		if _, ok := payload["project_id"]; ok {
+      project = mapPayloadToProject(payload)
+		}
+
 		// Marshal payload into JSON
-		_, err := json.Marshal(payload)
+		jsonProject, err := json.Marshal(project)
 		if err != nil {
 			log.Printf("Error marshaling payload for result %d: %v\n", i, err)
 			continue
 		}
 
 		// Print the JSON string
-		//fmt.Printf("Result %d Payload as JSON: %s\n", i, string(jsonData))
+		fmt.Printf("Result %d Payload as JSON: %s\n", i, string(jsonProject))
 	}
-fmt.Println(searchResults[0].GetPayload())
+	fmt.Println(searchResults[0].GetPayload())
 	return make([]string, 0), nil
+}
+
+func mapPayloadToProject(payload map[string]*qdrant.Value) projectModel.ProjectDisplay {
+	project := projectModel.ProjectDisplay{}
+	if val, ok := payload["project_id"]; ok {
+		project.ProjectID = int(val.GetIntegerValue())
+	}
+
+	return project
 }
 
 func (repo *VectorRepo) FullResetDatabase() error {
