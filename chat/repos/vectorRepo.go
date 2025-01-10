@@ -4,25 +4,23 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	chatModel "portfolioAPI/chat/models"
-	projectModel "portfolioAPI/project/models"
+	projectService "portfolioAPI/project/services"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/qdrant/go-client/qdrant"
 )
 
 type VectorRepo struct {
-	client *qdrant.Client
+	client         *qdrant.Client
+	projectService *projectService.ProjectService
 }
 
 const collectionName = "portfolio"
 const vectorSize = uint64(384)
 
-func NewVectorRepo() *VectorRepo {
+func NewVectorRepo(projectService *projectService.ProjectService) *VectorRepo {
 	client, err := qdrant.NewClient(&qdrant.Config{
 		Host: "qdrant",
 		Port: 6334,
@@ -33,7 +31,8 @@ func NewVectorRepo() *VectorRepo {
 	}
 
 	return &VectorRepo{
-		client: client,
+		client:         client,
+		projectService: projectService,
 	}
 }
 
@@ -66,7 +65,9 @@ func (repo *VectorRepo) UpsertProject(modifyProjectModel chatModel.ModifyProject
 		projectPointId = qdrant.NewID(uuid.NewString())
 	}
 
-	convertedProject := convertProjectDisplayToPayload(modifyProjectModel.ProjectPayload, modifyProjectModel.ProjectTags)
+	convertedProject := map[string]interface{}{
+		"project_id": modifyProjectModel.ProjectPayload.ProjectID,
+	}
 
 	err := repo.upsertVector(projectPointId, modifyProjectModel.Vector, convertedProject)
 	if err != nil {
@@ -98,21 +99,6 @@ func (repo *VectorRepo) getExistingProjectPoint(projectId int) *qdrant.PointId {
 	return nil
 }
 
-func convertProjectDisplayToPayload(projectDisplay projectModel.ProjectDisplay, tags []string) map[string]interface{} {
-	return map[string]interface{}{
-		"project_id":  projectDisplay.ProjectID,
-		"status":      projectDisplay.Status.Status,
-		"name":        projectDisplay.Name,
-		"about":       projectDisplay.About,
-		"github_link": projectDisplay.Github_Link,
-		"demo_link":   projectDisplay.Demo_Link,
-		"logo_path":   projectDisplay.Logo_Path,
-		"tags":        strings.Join(tags, ","),
-		"dev_date":    projectDisplay.DevDate.Format(time.RFC3339),
-		"hidden":      projectDisplay.Hidden,
-	}
-}
-
 func (repo *VectorRepo) upsertVector(pointId *qdrant.PointId, vector chatModel.FeatureExtractionResponse, payload map[string]interface{}) error {
 	_, err := repo.client.Upsert(context.Background(), &qdrant.UpsertPoints{
 		CollectionName: collectionName,
@@ -129,49 +115,64 @@ func (repo *VectorRepo) upsertVector(pointId *qdrant.PointId, vector chatModel.F
 }
 
 func (repo *VectorRepo) SearchSimilarity(vector chatModel.FeatureExtractionResponse) ([]string, error) {
+	response := make([]string, 0)
+	similarVectors, err := repo.getSimilarVectors(vector)
+	if err != nil {
+		return response, err
+	}
+
+  response = repo.convertFoundVectorsToPromptableResponse(similarVectors)
+
+for _, project := range response {
+  fmt.Println(project)
+}
+	return response, nil
+}
+func (repo *VectorRepo) getSimilarVectors(vector chatModel.FeatureExtractionResponse) ([]*qdrant.ScoredPoint, error) {
 	var limit uint64 = 3
 
-	searchResults, err := repo.client.Query(context.Background(), &qdrant.QueryPoints{
+	return repo.client.Query(context.Background(), &qdrant.QueryPoints{
 		CollectionName: collectionName,
 		Query:          qdrant.NewQuery(vector...),
 		WithPayload:    qdrant.NewWithPayload(true),
 		Limit:          &limit,
 	})
-
-	if err != nil {
-		println(err.Error())
-		return make([]string, 0), err
-	}
-
-	for i, result := range searchResults {
-		payload := result.GetPayload()
-
-		project := projectModel.ProjectDisplay{}
-		if _, ok := payload["project_id"]; ok {
-      project = mapPayloadToProject(payload)
-		}
-
-		// Marshal payload into JSON
-		jsonProject, err := json.Marshal(project)
-		if err != nil {
-			log.Printf("Error marshaling payload for result %d: %v\n", i, err)
-			continue
-		}
-
-		// Print the JSON string
-		fmt.Printf("Result %d Payload as JSON: %s\n", i, string(jsonProject))
-	}
-	fmt.Println(searchResults[0].GetPayload())
-	return make([]string, 0), nil
 }
 
-func mapPayloadToProject(payload map[string]*qdrant.Value) projectModel.ProjectDisplay {
-	project := projectModel.ProjectDisplay{}
-	if val, ok := payload["project_id"]; ok {
-		project.ProjectID = int(val.GetIntegerValue())
+
+func (repo *VectorRepo) convertFoundVectorsToPromptableResponse(foundVectors []*qdrant.ScoredPoint) ([]string) {
+  response := make([]string, 0)
+	for _, result := range foundVectors {
+		payload := result.GetPayload()
+
+		if projectId, ok := payload["project_id"]; ok {
+			project := repo.getStringyfiedProject(projectId.GetIntegerValue())
+
+			response = append(response, project)
+		} else {
+      // TODO promt thing
+
+		}
 	}
 
-	return project
+  return response
+}
+
+func (repo *VectorRepo) getStringyfiedProject(projectId int64) string {
+	projectDetails, err := repo.projectService.GetProjectById(int(projectId), false)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	jsonProject, err := json.Marshal(projectDetails)
+	if err != nil {
+		fmt.Println("Error marshalling to JSON:", err)
+
+	}
+
+	stringyfiedProject := string(jsonProject)
+
+	return stringyfiedProject
 }
 
 func (repo *VectorRepo) FullResetDatabase() error {
