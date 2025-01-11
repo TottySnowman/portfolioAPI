@@ -71,6 +71,7 @@ func getServices(repos repos) services {
 	tagService := tagService.NewTagService(repos.tagRepo)
 	projectService := projectService.NewProjectService(repos.projectRepo, tagService, fileService)
   embeddingService := chatService.NewEmbeddingService()
+  responseService := chatService.NewResponseService()
   repos.vectorRepo = vectorRepo.NewVectorRepo(projectService)
 
 	return services{
@@ -79,6 +80,6 @@ func getServices(repos repos) services {
 		statusService:    statusService.NewStatusService(repos.statusRepo),
 		fileService:      fileService,
 		embeddingService: embeddingService,
-		vectorService:    chatService.NewVectorService(repos.vectorRepo, projectService, embeddingService),
+		vectorService:    chatService.NewVectorService(repos.vectorRepo, projectService, embeddingService, responseService),
 	}
 }

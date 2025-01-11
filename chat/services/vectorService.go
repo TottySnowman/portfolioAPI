@@ -14,11 +14,13 @@ type VectorService struct {
 	vectorRepo       *vectorRepo.VectorRepo
 	projectService   *projectService.ProjectService
 	embeddingService *EmbeddingService
+  responseService  *ResponseService
 }
 
 func NewVectorService(vectorRepo *vectorRepo.VectorRepo,
 	projectService *projectService.ProjectService,
-	embeddingService *EmbeddingService) *VectorService {
+	embeddingService *EmbeddingService,
+  responseService *ResponseService) *VectorService {
 	if !vectorRepo.DoesCollectionExist() {
 		vectorRepo.CreateCollection()
 	}
@@ -27,6 +29,7 @@ func NewVectorService(vectorRepo *vectorRepo.VectorRepo,
 		vectorRepo:       vectorRepo,
 		projectService:   projectService,
 		embeddingService: embeddingService,
+    responseService: responseService,
 	}
 }
 
@@ -98,7 +101,19 @@ func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel)(*str
     return nil, err
   }
 
-  service.vectorRepo.SearchSimilarity(vector)
+  foundSimilarity, err := service.vectorRepo.SearchSimilarity(vector)
 
-  return nil, nil
+  if err != nil{
+    println(err.Error())
+    return nil, err
+  }
+
+
+  response, err := service.responseService.GetResponse(foundSimilarity)
+
+  if err != nil{
+    println(err.Error())
+    return nil, err
+  }
+  return response, nil
 }
