@@ -1,6 +1,7 @@
 package dependencyinjection
 
 import (
+	"portfolioAPI/chat/apiClients"
 	chatController "portfolioAPI/chat/controllers"
 	vectorRepo "portfolioAPI/chat/repos"
 	chatService "portfolioAPI/chat/services"
@@ -70,9 +71,9 @@ func getServices(repos repos) services {
 	fileService := fileServices.NewFileService(uploader, deleter)
 	tagService := tagService.NewTagService(repos.tagRepo)
 	projectService := projectService.NewProjectService(repos.projectRepo, tagService, fileService)
-  embeddingService := chatService.NewEmbeddingService()
-  responseService := chatService.NewResponseService()
-  repos.vectorRepo = vectorRepo.NewVectorRepo(projectService)
+	embeddingService := chatService.NewEmbeddingService(apiClients.NewHuggingFaceClient())
+	responseService := chatService.NewResponseService()
+	repos.vectorRepo = vectorRepo.NewVectorRepo(projectService)
 
 	return services{
 		projectService:   projectService,
