@@ -72,7 +72,7 @@ func getServices(repos repos) services {
 	tagService := tagService.NewTagService(repos.tagRepo)
 	projectService := projectService.NewProjectService(repos.projectRepo, tagService, fileService)
 	embeddingService := chatService.NewEmbeddingService(apiClients.NewHuggingFaceClient())
-	responseService := chatService.NewResponseService()
+	responseService := chatService.NewResponseService(apiClients.NewOpenAiClient())
 	repos.vectorRepo = vectorRepo.NewVectorRepo(projectService)
 
 	return services{

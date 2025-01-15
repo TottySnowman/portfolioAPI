@@ -94,26 +94,23 @@ func extractTags(tags []tagModel.JsonTag) []string {
 	return concatTags
 }
 
-func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel)(*string, error){
+func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel)(string, error){
   vector, err := service.embeddingService.GetVectorByText(prompt.Prompt)
   if err != nil{
-    println(err.Error())
-    return nil, err
+    return "", err
   }
 
   foundSimilarity, err := service.vectorRepo.SearchSimilarity(vector)
 
   if err != nil{
-    println(err.Error())
-    return nil, err
+    return "", err
   }
 
-
-  response, err := service.responseService.GetResponse(foundSimilarity)
+  response, err := service.responseService.GetResponse(foundSimilarity, prompt.Prompt)
 
   if err != nil{
     println(err.Error())
-    return nil, err
+    return "", err
   }
   return response, nil
 }

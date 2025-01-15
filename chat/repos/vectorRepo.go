@@ -123,9 +123,6 @@ func (repo *VectorRepo) SearchSimilarity(vector chatModel.FeatureExtractionRespo
 
   response = repo.convertFoundVectorsToPromptableResponse(similarVectors)
 
-for _, project := range response {
-  fmt.Println(project)
-}
 	return response, nil
 }
 func (repo *VectorRepo) getSimilarVectors(vector chatModel.FeatureExtractionResponse) ([]*qdrant.ScoredPoint, error) {
