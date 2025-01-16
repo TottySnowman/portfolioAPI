@@ -2,10 +2,12 @@ package apiClients
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	chatModel "portfolioAPI/chat/models"
 	"strings"
 )
 
@@ -24,15 +26,18 @@ func (apiClient *OpenAiClient) GetSummaryResponse(knowledgeBase []string, prompt
 	setHeadersOpenAi(request)
 	client := &http.Client{}
 	response, err := client.Do(request)
-	bodyBytes, err := io.ReadAll(response.Body)
-	if err != nil {
 
+	if err != nil {
+		return "", err
 	}
 
-	// Convert the body to a string and print it
-	fmt.Printf("Response Body: %s\n", string(bodyBytes))
+  body, err := getOpenAiResponse(response)
 
-	return "", nil
+	if err != nil {
+		return "", err
+	}
+
+	return body.Choices[0].Message.Content, nil
 }
 
 func createOpenAiRequest(knowledgeBase []string, prompt string) (*http.Request, error) {
@@ -64,4 +69,21 @@ func createOpenAiRequest(knowledgeBase []string, prompt string) (*http.Request, 
 func setHeadersOpenAi(request *http.Request) {
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Authorization", "Bearer "+os.Getenv("OPENAI_KEY"))
+}
+
+func getOpenAiResponse(response *http.Response) (*chatModel.OpenAIResponse, error) {
+	var openAIResponse chatModel.OpenAIResponse
+
+	bodyBytes, err := io.ReadAll(response.Body)
+
+	if err != nil {
+    return nil, err
+	}
+
+	err = json.Unmarshal(bodyBytes, &openAIResponse)
+	if err != nil {
+    return nil, err
+	}
+
+  return &openAIResponse, nil
 }

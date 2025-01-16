@@ -56,13 +56,14 @@ func (con *ChatController) Chat(context *gin.Context) {
 		return
 	}
 
-	_, err := con.vectorService.GetChatMessage(prompt)
+	message, err := con.vectorService.GetChatMessage(prompt)
 
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
+  context.IndentedJSON(http.StatusOK, gin.H{"message": message})
 }
 
 func (con *ChatController) Sync(context *gin.Context) {
