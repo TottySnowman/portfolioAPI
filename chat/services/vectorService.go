@@ -24,13 +24,20 @@ func NewVectorService(vectorRepo *vectorRepo.VectorRepo,
 	if !vectorRepo.DoesCollectionExist() {
 		vectorRepo.CreateCollection()
 	}
-
-	return &VectorService{
+  	vectorService := &VectorService{
 		vectorRepo:       vectorRepo,
 		projectService:   projectService,
 		embeddingService: embeddingService,
-    responseService: responseService,
+		responseService:  responseService,
 	}
+
+	projectService.RegisterListener(vectorService)
+
+	return vectorService
+}
+
+func (service *VectorService) OnProjectUpdated(project projectModel.ProjectDisplay) {
+	go service.upsertProject(project)
 }
 
 func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) error {
@@ -62,12 +69,12 @@ func (service *VectorService) InsertProjectsAsync() {
 	go func() {
 		projects := service.projectService.GetAllProjects(false)
 		for _, project := range projects {
-			go service.insertProject(project)
+			go service.upsertProject(project)
 		}
 	}()
 }
 
-func (service *VectorService) insertProject(project projectModel.ProjectDisplay) {
+func (service *VectorService) upsertProject(project projectModel.ProjectDisplay) {
 	tags := extractTags(project.Tags)
 	embeddingInput := fmt.Sprintf("%s %s %s", project.Name, project.About, strings.Join(tags, " "))
   vector, err := service.embeddingService.GetVectorByText(embeddingInput)
