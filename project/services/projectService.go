@@ -10,12 +10,15 @@ import (
 	tagService "portfolioAPI/tag/services"
 	"strings"
 )
+type ProjectUpdateListener interface {
+	OnProjectUpdated(project projectModel.ProjectDisplay)
+}
 
 type ProjectService struct {
 	repository  *project_repo.Project_Repo
 	tagService  *tagService.TagService
 	fileService *fileServices.FileService
-  projectVectorService *sharedservices.ProjectVectorService
+  updateListeners []ProjectUpdateListener
 }
 
 func NewProjectService(projectRepo *project_repo.Project_Repo,
@@ -26,7 +29,16 @@ projectVectorService *sharedservices.ProjectVectorService) *ProjectService {
 		repository:  projectRepo,
 		tagService:  tagService,
 		fileService: fileService,
-    projectVectorService: projectVectorService,
+    updateListeners: []ProjectUpdateListener{},
+	}
+}
+func (service *ProjectService) RegisterListener(listener ProjectUpdateListener) {
+	service.updateListeners = append(service.updateListeners, listener)
+}
+
+func (service *ProjectService) notifyProjectUpdated(project projectModel.ProjectDisplay) {
+	for _, listener := range service.updateListeners {
+		listener.OnProjectUpdated(project)
 	}
 }
 
@@ -44,6 +56,7 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
 	if err != nil {
 		return nil, err
 	}
+  service.notifyProjectUpdated(*mappedProject)
 
 	return mappedProject, nil
 }
@@ -63,6 +76,7 @@ func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*pro
 		return nil, err
 	}
 
+  service.notifyProjectUpdated(*mappedProject)
 	return mappedProject, nil
 }
 
