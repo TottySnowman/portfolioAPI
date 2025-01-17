@@ -1,16 +1,20 @@
 package sharedservices
 
 import (
-	vectorRepo "portfolioAPI/chat/repos"
+	projectModel "portfolioAPI/project/models"
 	project_repo "portfolioAPI/project/repos"
 )
 type ProjectVectorService struct {
-  vectorRepo *vectorRepo.VectorRepo
-  project_repo *project_repo.Project_Repo
+  projectRepo *project_repo.Project_Repo
 }
 
-func NewSharedService() *ProjectVectorService {
-    return &ProjectVectorService{}
+func NewSharedService(projectRepo *project_repo.Project_Repo) *ProjectVectorService {
+    return &ProjectVectorService{
+    projectRepo: projectRepo,
+  }
 }
 
+func (service *ProjectVectorService) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
+	return service.projectRepo.GetAllProjects(includeHidden)
+}
 

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	projectModel "portfolioAPI/project/models"
 	projectService "portfolioAPI/project/services"
+	sharedservices "portfolioAPI/sharedServices"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,7 @@ import (
 
 type ProjectController struct {
 	projectService *projectService.ProjectService
+  projectVectorService *sharedservices.ProjectVectorService
 }
 
 func NewProjectController(projectService *projectService.ProjectService) *ProjectController {
@@ -20,7 +22,7 @@ func NewProjectController(projectService *projectService.ProjectService) *Projec
 }
 
 func (con *ProjectController) GetAllProjects(context *gin.Context) {
-	projects := con.projectService.GetAllProjects(false)
+	projects := con.projectVectorService.GetAllProjects(false)
 	if projects == nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "No projects found"})
 		return
@@ -30,7 +32,7 @@ func (con *ProjectController) GetAllProjects(context *gin.Context) {
 }
 
 func (con *ProjectController) GetAllProjectsIncludeHidden(context *gin.Context) {
-	projects := con.projectService.GetAllProjects(true)
+	projects := con.projectVectorService.GetAllProjects(true)
 	if projects == nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "No projects found"})
 		return
