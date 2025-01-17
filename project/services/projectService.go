@@ -5,6 +5,7 @@ import (
 	fileServices "portfolioAPI/fileUpload/services"
 	projectModel "portfolioAPI/project/models"
 	project_repo "portfolioAPI/project/repos"
+	sharedservices "portfolioAPI/sharedServices"
 	tagModel "portfolioAPI/tag/models"
 	tagService "portfolioAPI/tag/services"
 	"strings"
@@ -22,7 +23,8 @@ type ProjectService struct {
 
 func NewProjectService(projectRepo *project_repo.Project_Repo,
 	tagService *tagService.TagService,
-	fileService *fileServices.FileService) *ProjectService {
+	fileService *fileServices.FileService,
+projectVectorService *sharedservices.ProjectVectorService) *ProjectService {
 	return &ProjectService{
 		repository:  projectRepo,
 		tagService:  tagService,
@@ -38,10 +40,6 @@ func (service *ProjectService) notifyProjectUpdated(project projectModel.Project
 	for _, listener := range service.updateListeners {
 		listener.OnProjectUpdated(project)
 	}
-}
-
-func (service *ProjectService) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
-	return service.repository.GetAllProjects(includeHidden)
 }
 
 func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
