@@ -5,31 +5,30 @@ import (
 	fileServices "portfolioAPI/fileUpload/services"
 	projectModel "portfolioAPI/project/models"
 	project_repo "portfolioAPI/project/repos"
-	sharedservices "portfolioAPI/sharedServices"
 	tagModel "portfolioAPI/tag/models"
 	tagService "portfolioAPI/tag/services"
 	"strings"
 )
+
 type ProjectUpdateListener interface {
 	OnProjectUpdated(project projectModel.ProjectDisplay)
 }
 
 type ProjectService struct {
-	repository  *project_repo.Project_Repo
-	tagService  *tagService.TagService
-	fileService *fileServices.FileService
-  updateListeners []ProjectUpdateListener
+	repository      *project_repo.Project_Repo
+	tagService      *tagService.TagService
+	fileService     *fileServices.FileService
+	updateListeners []ProjectUpdateListener
 }
 
 func NewProjectService(projectRepo *project_repo.Project_Repo,
 	tagService *tagService.TagService,
-	fileService *fileServices.FileService,
-projectVectorService *sharedservices.ProjectVectorService) *ProjectService {
+	fileService *fileServices.FileService) *ProjectService {
 	return &ProjectService{
-		repository:  projectRepo,
-		tagService:  tagService,
-		fileService: fileService,
-    updateListeners: []ProjectUpdateListener{},
+		repository:      projectRepo,
+		tagService:      tagService,
+		fileService:     fileService,
+		updateListeners: []ProjectUpdateListener{},
 	}
 }
 func (service *ProjectService) RegisterListener(listener ProjectUpdateListener) {
@@ -40,6 +39,10 @@ func (service *ProjectService) notifyProjectUpdated(project projectModel.Project
 	for _, listener := range service.updateListeners {
 		listener.OnProjectUpdated(project)
 	}
+}
+
+func (service *ProjectService) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
+	return service.repository.GetAllProjects(includeHidden)
 }
 
 func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
@@ -56,7 +59,10 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
 	if err != nil {
 		return nil, err
 	}
-  service.notifyProjectUpdated(*mappedProject)
+
+	if !mappedProject.Hidden {
+		service.notifyProjectUpdated(*mappedProject)
+	}
 
 	return mappedProject, nil
 }
@@ -76,7 +82,9 @@ func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*pro
 		return nil, err
 	}
 
-  service.notifyProjectUpdated(*mappedProject)
+	if !mappedProject.Hidden {
+		service.notifyProjectUpdated(*mappedProject)
+	}
 	return mappedProject, nil
 }
 
@@ -113,12 +121,12 @@ func (service *ProjectService) Delete(projectID int) error {
 		return err
 	}
 
-  existingProject.Logo_Path = service.removeUrlPrefix(existingProject.Logo_Path)
+	existingProject.Logo_Path = service.removeUrlPrefix(existingProject.Logo_Path)
 	return service.fileService.HandleFileDelete("/logo", existingProject.Logo_Path)
 }
 
-func (service *ProjectService) removeUrlPrefix(url string) string{
-  return strings.TrimPrefix(url, os.Getenv("API_ENDPOINT_URL"))
+func (service *ProjectService) removeUrlPrefix(url string) string {
+	return strings.TrimPrefix(url, os.Getenv("API_ENDPOINT_URL"))
 }
 
 func (service *ProjectService) GetProjectById(projectId int, includeHidden bool) (*projectModel.ProjectDisplay, error) {
@@ -133,7 +141,6 @@ func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel
 
 	return convertedTags
 }
-
 
 func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.Project {
 	return projectModel.Project{

@@ -5,30 +5,30 @@ import (
 	chatModel "portfolioAPI/chat/models"
 	vectorRepo "portfolioAPI/chat/repos"
 	projectModel "portfolioAPI/project/models"
-	sharedservices "portfolioAPI/sharedServices"
+	projectService "portfolioAPI/project/services"
 	tagModel "portfolioAPI/tag/models"
 	"strings"
 )
 
 type VectorService struct {
 	vectorRepo       *vectorRepo.VectorRepo
-  projectVectorService *sharedservices.ProjectVectorService
 	embeddingService *EmbeddingService
   responseService  *ResponseService
+  projectService *projectService.ProjectService
 }
 
 func NewVectorService(vectorRepo *vectorRepo.VectorRepo,
-  projectVectorService *sharedservices.ProjectVectorService,
 	embeddingService *EmbeddingService,
+  projectService *projectService.ProjectService,
   responseService *ResponseService) *VectorService {
 	if !vectorRepo.DoesCollectionExist() {
 		vectorRepo.CreateCollection()
 	}
   	vectorService := &VectorService{
 		vectorRepo:       vectorRepo,
-    projectVectorService: projectVectorService, 
 		embeddingService: embeddingService,
 		responseService:  responseService,
+    projectService: projectService,
 	}
 
 	projectService.RegisterListener(vectorService)
@@ -67,7 +67,7 @@ func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) erro
 
 func (service *VectorService) InsertProjectsAsync() {
 	go func() {
-		projects := service.projectVectorService.GetAllProjects(false)
+		projects := service.projectService.GetAllProjects(false)
 		for _, project := range projects {
 			go service.upsertProject(project)
 		}

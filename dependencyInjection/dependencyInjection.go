@@ -11,7 +11,6 @@ import (
 	projectController "portfolioAPI/project/controllers"
 	project_repo "portfolioAPI/project/repos"
 	projectService "portfolioAPI/project/services"
-	sharedservices "portfolioAPI/sharedServices"
 	statusController "portfolioAPI/status/controllers"
 	statusRepo "portfolioAPI/status/repos"
 	statusService "portfolioAPI/status/services"
@@ -69,10 +68,9 @@ func getServices(repos repos) services {
 	uploader := &fileHandler.FileUploadHandler{}
 	deleter := &fileHandler.FileDeleteHandler{}
 
-	projectVectorService := sharedservices.NewSharedService(repos.projectRepo)
 	fileService := fileServices.NewFileService(uploader, deleter)
 	tagService := tagService.NewTagService(repos.tagRepo)
-	projectService := projectService.NewProjectService(repos.projectRepo, tagService, fileService, projectVectorService)
+	projectService := projectService.NewProjectService(repos.projectRepo, tagService, fileService)
 	embeddingService := chatService.NewEmbeddingService(apiClients.NewHuggingFaceClient())
 	responseService := chatService.NewResponseService(apiClients.NewOpenAiClient())
 	repos.vectorRepo = vectorRepo.NewVectorRepo(projectService)
@@ -83,6 +81,6 @@ func getServices(repos repos) services {
 		statusService:    statusService.NewStatusService(repos.statusRepo),
 		fileService:      fileService,
 		embeddingService: embeddingService,
-		vectorService:    chatService.NewVectorService(repos.vectorRepo, projectVectorService, embeddingService, responseService),
+		vectorService:    chatService.NewVectorService(repos.vectorRepo, embeddingService, projectService, responseService),
 	}
 }
