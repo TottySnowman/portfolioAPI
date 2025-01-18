@@ -66,7 +66,7 @@ func (repo *VectorRepo) UpsertProject(modifyProjectModel chatModel.ModifyProject
 	}
 
 	convertedProject := map[string]interface{}{
-		"project_id": modifyProjectModel.ProjectPayload.ProjectID,
+		"project_id": strconv.Itoa(modifyProjectModel.ProjectPayload.ProjectID),
 	}
 
 	err := repo.upsertVector(projectPointId, modifyProjectModel.Vector, convertedProject)
@@ -77,23 +77,41 @@ func (repo *VectorRepo) UpsertProject(modifyProjectModel chatModel.ModifyProject
 	return nil
 }
 
+func (repo *VectorRepo) DeleteProjectPoint(projectId int) error {
+	projectPointId := repo.getExistingProjectPoint(projectId)
+	if projectPointId == nil {
+		fmt.Println("No point found for the given project ID.")
+		return nil
+	}
+
+	repo.client.Delete(context.Background(), &qdrant.DeletePoints{
+		CollectionName: collectionName,
+		Points: qdrant.NewPointsSelector(
+			qdrant.NewID(projectPointId.GetUuid())),
+	})
+
+	fmt.Println("Point successfully deleted.")
+	return nil
+}
+
 func (repo *VectorRepo) getExistingProjectPoint(projectId int) *qdrant.PointId {
 	filter := &qdrant.Filter{
 		Must: []*qdrant.Condition{
-			qdrant.NewMatch("projectId", strconv.Itoa(projectId)),
+			qdrant.NewMatch("project_id", strconv.Itoa(projectId)),
 		},
 	}
 
 	point, err := repo.client.Scroll(context.Background(), &qdrant.ScrollPoints{
 		CollectionName: collectionName,
 		Filter:         filter,
+		WithPayload:    qdrant.NewWithPayload(true),
 	})
 
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(point)
 	if point != nil && len(point) > 0 {
-
 		return point[0].Id
 	}
 	return nil
@@ -121,7 +139,7 @@ func (repo *VectorRepo) SearchSimilarity(vector chatModel.FeatureExtractionRespo
 		return response, err
 	}
 
-  response = repo.convertFoundVectorsToPromptableResponse(similarVectors)
+	response = repo.convertFoundVectorsToPromptableResponse(similarVectors)
 
 	return response, nil
 }
@@ -136,9 +154,8 @@ func (repo *VectorRepo) getSimilarVectors(vector chatModel.FeatureExtractionResp
 	})
 }
 
-
-func (repo *VectorRepo) convertFoundVectorsToPromptableResponse(foundVectors []*qdrant.ScoredPoint) ([]string) {
-  response := make([]string, 0)
+func (repo *VectorRepo) convertFoundVectorsToPromptableResponse(foundVectors []*qdrant.ScoredPoint) []string {
+	response := make([]string, 0)
 	for _, result := range foundVectors {
 		payload := result.GetPayload()
 
@@ -147,12 +164,12 @@ func (repo *VectorRepo) convertFoundVectorsToPromptableResponse(foundVectors []*
 
 			response = append(response, project)
 		} else {
-      // TODO promt thing
+			// TODO promt thing
 
 		}
 	}
 
-  return response
+	return response
 }
 
 func (repo *VectorRepo) getStringyfiedProject(projectId int64) string {

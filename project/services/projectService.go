@@ -12,6 +12,7 @@ import (
 
 type ProjectUpdateListener interface {
 	OnProjectUpdated(project projectModel.ProjectDisplay)
+	OnProjectDeleted(projectId int)
 }
 
 type ProjectService struct {
@@ -38,6 +39,12 @@ func (service *ProjectService) RegisterListener(listener ProjectUpdateListener) 
 func (service *ProjectService) notifyProjectUpdated(project projectModel.ProjectDisplay) {
 	for _, listener := range service.updateListeners {
 		listener.OnProjectUpdated(project)
+	}
+}
+
+func (service *ProjectService) notifyProjectDeleted(projectId int) {
+	for _, listener := range service.updateListeners {
+		listener.OnProjectDeleted(projectId)
 	}
 }
 
@@ -119,6 +126,10 @@ func (service *ProjectService) Delete(projectID int) error {
 	err = service.repository.Delete(projectID)
 	if err != nil {
 		return err
+	}
+
+	if !existingProject.Hidden {
+		service.notifyProjectDeleted(existingProject.ProjectID)
 	}
 
 	existingProject.Logo_Path = service.removeUrlPrefix(existingProject.Logo_Path)

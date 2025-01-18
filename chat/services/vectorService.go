@@ -40,6 +40,10 @@ func (service *VectorService) OnProjectUpdated(project projectModel.ProjectDispl
 	go service.upsertProject(project)
 }
 
+func (service *VectorService) OnProjectDeleted(projectId int) {
+  service.vectorRepo.DeleteProjectPoint(projectId)
+}
+
 func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) error {
 	if !syncModel.ResetProject && !syncModel.ResetPersonal {
 		return nil
