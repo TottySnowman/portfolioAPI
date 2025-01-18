@@ -110,7 +110,6 @@ func (repo *VectorRepo) getExistingProjectPoint(projectId int) *qdrant.PointId {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(point)
 	if point != nil && len(point) > 0 {
 		return point[0].Id
 	}
@@ -160,7 +159,8 @@ func (repo *VectorRepo) convertFoundVectorsToPromptableResponse(foundVectors []*
 		payload := result.GetPayload()
 
 		if projectId, ok := payload["project_id"]; ok {
-			project := repo.getStringyfiedProject(projectId.GetIntegerValue())
+      convertedProjectId, _ := strconv.Atoi(projectId.GetStringValue())
+			project := repo.getStringyfiedProject(int64(convertedProjectId))
 
 			response = append(response, project)
 		} else {
