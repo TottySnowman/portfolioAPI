@@ -1,10 +1,15 @@
 package chatController
 
 import (
+	"context"
+	"log"
 	"net/http"
 	chatModel "portfolioAPI/chat/models"
 	chatService "portfolioAPI/chat/services"
+	"time"
 
+	"github.com/coder/websocket"
+	"github.com/coder/websocket/wsjson"
 	"github.com/gin-gonic/gin"
 )
 
@@ -63,7 +68,7 @@ func (con *ChatController) Chat(context *gin.Context) {
 		return
 	}
 
-  context.IndentedJSON(http.StatusOK, gin.H{"message": message})
+	context.IndentedJSON(http.StatusOK, gin.H{"message": message})
 }
 
 func (con *ChatController) Sync(context *gin.Context) {
@@ -77,5 +82,27 @@ func (con *ChatController) Sync(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
 		return
 	}
+}
 
+func (con *ChatController) CreateWsConnection(cxt *gin.Context) {
+  c, err := websocket.Accept(cxt.Writer, cxt.Request, nil)
+	if err != nil {
+		// ...
+	}
+	defer c.CloseNow()
+
+	// Set the context as needed. Use of r.Context() is not recommended
+	// to avoid surprising behavior (see http.Hijacker).
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	var v interface{}
+	err = wsjson.Read(ctx, c, &v)
+	if err != nil {
+		// ...
+	}
+
+	log.Printf("received: %v", v)
+
+	c.Close(websocket.StatusNormalClosure, "")
 }

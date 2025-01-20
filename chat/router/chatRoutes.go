@@ -12,6 +12,7 @@ func RegisterChatRoutes(router *gin.Engine, chatController *chatController.ChatC
 		routerGroup.POST("",middleware.JWTMiddleware(), chatController.Upsert)
 		routerGroup.POST("/fullSync",middleware.JWTMiddleware(), chatController.FullSync)
 		routerGroup.POST("/chat",middleware.JWTMiddleware(), chatController.Chat)
+		routerGroup.GET("/ws", chatController.CreateWsConnection)
 	}
 }
 
