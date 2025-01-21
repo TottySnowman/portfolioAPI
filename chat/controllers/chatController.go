@@ -2,14 +2,12 @@ package chatController
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 	chatModel "portfolioAPI/chat/models"
 	chatService "portfolioAPI/chat/services"
-	"time"
 
 	"github.com/coder/websocket"
-	"github.com/coder/websocket/wsjson"
 	"github.com/gin-gonic/gin"
 )
 
@@ -85,24 +83,30 @@ func (con *ChatController) Sync(context *gin.Context) {
 }
 
 func (con *ChatController) CreateWsConnection(cxt *gin.Context) {
-  c, err := websocket.Accept(cxt.Writer, cxt.Request, nil)
-	if err != nil {
-		// ...
+	acceptOptions := websocket.AcceptOptions{
+		OriginPatterns: []string{"*"},
 	}
-	defer c.CloseNow()
-
-	// Set the context as needed. Use of r.Context() is not recommended
-	// to avoid surprising behavior (see http.Hijacker).
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	var v interface{}
-	err = wsjson.Read(ctx, c, &v)
+	conn, err := websocket.Accept(cxt.Writer, cxt.Request, &acceptOptions)
 	if err != nil {
-		// ...
+		http.Error(cxt.Writer, "Failed to upgrade WebSocket connection", http.StatusInternalServerError)
+		return
 	}
+	defer conn.Close(websocket.StatusNormalClosure, "closing connection")
 
-	log.Printf("received: %v", v)
+	for {
+		typ, data, err := conn.Read(context.Background())
+		if err != nil {
+			break
+		}
 
-	c.Close(websocket.StatusNormalClosure, "")
+		if string(data) == "ping" {
+			err = conn.Write(context.Background(), typ, []byte("pong"))
+		} else {
+			err = conn.Write(context.Background(), typ, []byte(fmt.Sprintf("Hello, %s", string(data))))
+		}
+
+		if err != nil {
+			break
+		}
+	}
 }
