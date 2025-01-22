@@ -82,6 +82,7 @@ func (con *ChatController) Sync(context *gin.Context) {
 	}
 }
 
+var modelReady = false
 func (con *ChatController) CreateWsConnection(cxt *gin.Context) {
 	acceptOptions := websocket.AcceptOptions{
 		OriginPatterns: []string{"*"},
