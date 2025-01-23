@@ -41,6 +41,7 @@ type services struct {
 	fileService      *fileServices.FileService
 	embeddingService *chatService.EmbeddingService
 	vectorService    *chatService.VectorService
+	wsService        *chatService.WsService
 }
 
 func NewAppContainer() *AppContainer {
@@ -52,7 +53,7 @@ func NewAppContainer() *AppContainer {
 		TagController:     tagController.NewTagController(services.tagService),
 		StatusController:  statusController.NewStatusController(services.statusService),
 		FileController:    fileController.NewFileController(services.fileService),
-		ChatController:    chatController.NewChatController(services.embeddingService, services.vectorService),
+		ChatController:    chatController.NewChatController(services.embeddingService, services.vectorService, services.wsService),
 	}
 }
 
@@ -82,5 +83,6 @@ func getServices(repos repos) services {
 		fileService:      fileService,
 		embeddingService: embeddingService,
 		vectorService:    chatService.NewVectorService(repos.vectorRepo, embeddingService, projectService, responseService),
+		wsService:        chatService.NewWsService(),
 	}
 }

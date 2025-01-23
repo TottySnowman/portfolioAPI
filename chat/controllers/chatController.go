@@ -7,19 +7,22 @@ import (
 	chatModel "portfolioAPI/chat/models"
 	chatService "portfolioAPI/chat/services"
 
-	"github.com/coder/websocket"
 	"github.com/gin-gonic/gin"
 )
 
 type ChatController struct {
 	embeddingService *chatService.EmbeddingService
 	vectorService    *chatService.VectorService
+	wsService        *chatService.WsService
 }
 
-func NewChatController(embeddingService *chatService.EmbeddingService, vectorService *chatService.VectorService) *ChatController {
+func NewChatController(embeddingService *chatService.EmbeddingService,
+	vectorService *chatService.VectorService,
+	wsService *chatService.WsService) *ChatController {
 	return &ChatController{
 		embeddingService: embeddingService,
 		vectorService:    vectorService,
+		wsService:        wsService,
 	}
 }
 
@@ -82,32 +85,38 @@ func (con *ChatController) Sync(context *gin.Context) {
 	}
 }
 
-var modelReady = false
 func (con *ChatController) CreateWsConnection(cxt *gin.Context) {
-	acceptOptions := websocket.AcceptOptions{
-		OriginPatterns: []string{"*"},
-	}
-	conn, err := websocket.Accept(cxt.Writer, cxt.Request, &acceptOptions)
-	if err != nil {
-		http.Error(cxt.Writer, "Failed to upgrade WebSocket connection", http.StatusInternalServerError)
+	wsConnection := con.wsService.GetWebsocketConnection(cxt)
+	if wsConnection == nil {
+		cxt.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	defer conn.Close(websocket.StatusNormalClosure, "closing connection")
 
 	for {
-		typ, data, err := conn.Read(context.Background())
+		typ, data, err := wsConnection.Read(context.Background())
 		if err != nil {
+			println(err)
 			break
 		}
 
+		if !con.embeddingService.IsModelReady() {
+			wsConnection.Write(context.Background(), typ, []byte("Model is starting..."))
+			go func() {
+				con.embeddingService.StartModel()
+				wsConnection.Write(context.Background(), typ, []byte("Model started successfully!"))
+			}()
+			continue
+		}
 		if string(data) == "ping" {
-			err = conn.Write(context.Background(), typ, []byte("pong"))
+			err = wsConnection.Write(context.Background(), typ, []byte("pong"))
 		} else {
-			err = conn.Write(context.Background(), typ, []byte(fmt.Sprintf("Hello, %s", string(data))))
+			err = wsConnection.Write(context.Background(), typ, []byte(fmt.Sprintf("Hello, %s", string(data))))
 		}
 
 		if err != nil {
+			println(err)
 			break
 		}
 	}
+
 }
