@@ -106,7 +106,10 @@ func (con *ChatController) CreateWsConnection(cxt *gin.Context) {
 				wsConnection.Write(context.Background(), typ, []byte("Model started successfully!"))
 			}()
 			continue
+		} else {
+			wsConnection.Write(context.Background(), typ, []byte("Model is already running!"))
 		}
+
 		if string(data) == "ping" {
 			err = wsConnection.Write(context.Background(), typ, []byte("pong"))
 		} else {
