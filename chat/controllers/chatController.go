@@ -26,14 +26,21 @@ func NewChatController(embeddingService *chatService.EmbeddingService,
 	}
 }
 
-func (con *ChatController) Upsert(context *gin.Context) {
+func (con *ChatController) InsertKnowledge(context *gin.Context) {
 	var prompt *chatModel.PromptModel
 	if err := context.ShouldBindJSON(&prompt); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
-	_, err := con.embeddingService.GetVectorByText(prompt.Prompt)
+	vector, err := con.embeddingService.GetVectorByText(prompt.Prompt)
+
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	err = con.vectorService.UpsertText(vector, prompt.Prompt, prompt.PointId) // TODO get the inserted point back and return it
 
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})

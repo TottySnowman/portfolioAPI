@@ -58,6 +58,35 @@ func (repo *VectorRepo) CreateCollection() error {
 	return err
 }
 
+func (repo *VectorRepo) UpsertText(vector chatModel.FeatureExtractionResponse, text string, textId string) error {
+	textPoint := qdrant.NewID(uuid.NewString())
+
+	if textId != "" {
+		textPoint = repo.GetExistingPoint(textId)
+	}
+
+	convertedText := map[string]interface{}{
+		"text": text,
+	}
+
+	return repo.upsertVector(textPoint, vector, convertedText)
+}
+
+func (repo *VectorRepo) GetExistingPoint(pointId string) *qdrant.PointId {
+	point, err := repo.client.Query(context.Background(), &qdrant.QueryPoints{
+		CollectionName: collectionName,
+		Query:          qdrant.NewQueryID(qdrant.NewID(pointId)),
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	if point != nil && len(point) > 0 {
+		return point[0].Id
+	}
+	return nil
+}
+
 func (repo *VectorRepo) UpsertProject(modifyProjectModel chatModel.ModifyProjectModel) error {
 	projectPointId := repo.getExistingProjectPoint(modifyProjectModel.ProjectPayload.ProjectID)
 
@@ -159,13 +188,13 @@ func (repo *VectorRepo) convertFoundVectorsToPromptableResponse(foundVectors []*
 		payload := result.GetPayload()
 
 		if projectId, ok := payload["project_id"]; ok {
-      convertedProjectId, _ := strconv.Atoi(projectId.GetStringValue())
+			convertedProjectId, _ := strconv.Atoi(projectId.GetStringValue())
 			project := repo.getStringyfiedProject(int64(convertedProjectId))
 
 			response = append(response, project)
 		} else {
-			// TODO promt thing
-
+      qdrantText, _ := payload["text"]
+			response = append(response, qdrantText.GetStringValue())
 		}
 	}
 

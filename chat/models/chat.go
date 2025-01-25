@@ -4,6 +4,7 @@ import projectModel "portfolioAPI/project/models"
 
 type PromptModel struct {
 	Prompt    string
+  PointId   string
 }
 
 type ModifyProjectModel struct {

@@ -13,22 +13,22 @@ import (
 type VectorService struct {
 	vectorRepo       *vectorRepo.VectorRepo
 	embeddingService *EmbeddingService
-  responseService  *ResponseService
-  projectService *projectService.ProjectService
+	responseService  *ResponseService
+	projectService   *projectService.ProjectService
 }
 
 func NewVectorService(vectorRepo *vectorRepo.VectorRepo,
 	embeddingService *EmbeddingService,
-  projectService *projectService.ProjectService,
-  responseService *ResponseService) *VectorService {
+	projectService *projectService.ProjectService,
+	responseService *ResponseService) *VectorService {
 	if !vectorRepo.DoesCollectionExist() {
 		vectorRepo.CreateCollection()
 	}
-  	vectorService := &VectorService{
+	vectorService := &VectorService{
 		vectorRepo:       vectorRepo,
 		embeddingService: embeddingService,
 		responseService:  responseService,
-    projectService: projectService,
+		projectService:   projectService,
 	}
 
 	projectService.RegisterListener(vectorService)
@@ -41,7 +41,7 @@ func (service *VectorService) OnProjectUpdated(project projectModel.ProjectDispl
 }
 
 func (service *VectorService) OnProjectDeleted(projectId int) {
-  service.vectorRepo.DeleteProjectPoint(projectId)
+	service.vectorRepo.DeleteProjectPoint(projectId)
 }
 
 func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) error {
@@ -50,12 +50,12 @@ func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) erro
 	}
 
 	if syncModel.ResetProject && syncModel.ResetPersonal {
-    err := service.vectorRepo.FullResetDatabase()
-    if err != nil{
-      return err
-    }
+		err := service.vectorRepo.FullResetDatabase()
+		if err != nil {
+			return err
+		}
 
-    service.vectorRepo.CreateCollection()
+		service.vectorRepo.CreateCollection()
 	}
 
 	if syncModel.ResetProject {
@@ -81,18 +81,18 @@ func (service *VectorService) InsertProjectsAsync() {
 func (service *VectorService) upsertProject(project projectModel.ProjectDisplay) {
 	tags := extractTags(project.Tags)
 	embeddingInput := fmt.Sprintf("%s %s %s", project.Name, project.About, strings.Join(tags, " "))
-  vector, err := service.embeddingService.GetVectorByText(embeddingInput)
-  if err != nil{
-    // TODO logging
-  }
+	vector, err := service.embeddingService.GetVectorByText(embeddingInput)
+	if err != nil {
+		// TODO logging
+	}
 
-  modifyProjectModel := &chatModel.ModifyProjectModel{
-    ProjectPayload: project,
-    Vector: vector,
-    ProjectTags: tags,
-  }
+	modifyProjectModel := &chatModel.ModifyProjectModel{
+		ProjectPayload: project,
+		Vector:         vector,
+		ProjectTags:    tags,
+	}
 
-  service.vectorRepo.UpsertProject(*modifyProjectModel)
+	service.vectorRepo.UpsertProject(*modifyProjectModel)
 }
 
 func extractTags(tags []tagModel.JsonTag) []string {
@@ -105,23 +105,27 @@ func extractTags(tags []tagModel.JsonTag) []string {
 	return concatTags
 }
 
-func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel)(string, error){
-  vector, err := service.embeddingService.GetVectorByText(prompt.Prompt)
-  if err != nil{
-    return "", err
-  }
+func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel) (string, error) {
+	vector, err := service.embeddingService.GetVectorByText(prompt.Prompt)
+	if err != nil {
+		return "", err
+	}
 
-  foundSimilarity, err := service.vectorRepo.SearchSimilarity(vector)
+	foundSimilarity, err := service.vectorRepo.SearchSimilarity(vector)
 
-  if err != nil{
-    return "", err
-  }
+	if err != nil {
+		return "", err
+	}
 
-  response, err := service.responseService.GetResponse(foundSimilarity, prompt.Prompt)
+	response, err := service.responseService.GetResponse(foundSimilarity, prompt.Prompt)
 
-  if err != nil{
-    println(err.Error())
-    return "", err
-  }
-  return response, nil
+	if err != nil {
+		println(err.Error())
+		return "", err
+	}
+	return response, nil
+}
+
+func (service *VectorService) UpsertText(vector chatModel.FeatureExtractionResponse, text string, textId string) error {
+	return service.vectorRepo.UpsertText(vector, text, textId)
 }
