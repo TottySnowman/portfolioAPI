@@ -1,7 +1,7 @@
 package dependencyinjection
 
 import (
-	"portfolioAPI/chat/apiClients"
+	"portfolioAPI/apiClients"
 	chatController "portfolioAPI/chat/controllers"
 	vectorRepo "portfolioAPI/chat/repos"
 	chatService "portfolioAPI/chat/services"

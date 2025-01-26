@@ -1,6 +1,6 @@
 package chatService
 
-import "portfolioAPI/chat/apiClients"
+import "portfolioAPI/apiClients"
 
 type ResponseService struct {
 	client *apiClients.OpenAiClient

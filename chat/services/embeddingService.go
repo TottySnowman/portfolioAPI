@@ -1,7 +1,7 @@
 package chatService
 
 import (
-	"portfolioAPI/chat/apiClients"
+	"portfolioAPI/apiClients"
 	chatModel "portfolioAPI/chat/models"
 	"time"
 )

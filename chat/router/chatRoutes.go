@@ -9,9 +9,8 @@ import (
 func RegisterChatRoutes(router *gin.Engine, chatController *chatController.ChatController) {
 	routerGroup := router.Group("/chat")
 	{
-		routerGroup.POST("",middleware.JWTMiddleware(), chatController.InsertKnowledge)
 		routerGroup.POST("/fullSync",middleware.JWTMiddleware(), chatController.FullSync)
-		routerGroup.POST("/chat",middleware.JWTMiddleware(), chatController.Chat)
+		routerGroup.POST("/",middleware.JWTMiddleware(), chatController.Chat)
 		routerGroup.GET("/ws", chatController.CreateWsConnection)
 	}
 }
