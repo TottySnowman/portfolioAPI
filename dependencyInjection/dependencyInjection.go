@@ -8,6 +8,7 @@ import (
 	fileController "portfolioAPI/fileUpload/controllers"
 	fileHandler "portfolioAPI/fileUpload/handler"
 	fileServices "portfolioAPI/fileUpload/services"
+	knowledgeController "portfolioAPI/knowledge/controllers"
 	projectController "portfolioAPI/project/controllers"
 	project_repo "portfolioAPI/project/repos"
 	projectService "portfolioAPI/project/services"
@@ -25,6 +26,7 @@ type AppContainer struct {
 	StatusController  *statusController.StatusController
 	FileController    *fileController.FileController
 	ChatController    *chatController.ChatController
+  KnowledgeController *knowledgeController.KnowledgeController
 }
 
 type repos struct {
@@ -54,6 +56,7 @@ func NewAppContainer() *AppContainer {
 		StatusController:  statusController.NewStatusController(services.statusService),
 		FileController:    fileController.NewFileController(services.fileService),
 		ChatController:    chatController.NewChatController(services.embeddingService, services.vectorService, services.wsService),
+    KnowledgeController: knowledgeController.NewKnowledgeController(services.vectorService, services.embeddingService),
 	}
 }
 

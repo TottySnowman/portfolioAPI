@@ -13,9 +13,10 @@ type KnowledgeController struct {
 	embeddingService *chatService.EmbeddingService
 }
 
-func NewKnowledgeController(vectorService *chatService.VectorService) *KnowledgeController {
+func NewKnowledgeController(vectorService *chatService.VectorService, embeddingService *chatService.EmbeddingService) *KnowledgeController {
 	return &KnowledgeController{
 		vectorService: vectorService,
+    embeddingService: embeddingService,
 	}
 }
 
