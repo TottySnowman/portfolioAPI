@@ -20,7 +20,7 @@ func NewKnowledgeController(vectorService *chatService.VectorService, embeddingS
 	}
 }
 
-func (con *KnowledgeController) InsertText(ctx *gin.Context) {
+func (con *KnowledgeController) UpsertText(ctx *gin.Context) {
 	var prompt *chatModel.PromptModel
 	if err := ctx.ShouldBindJSON(&prompt); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})

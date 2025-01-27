@@ -9,6 +9,7 @@ import (
 func RegisterKnowledgeRoutes(router *gin.Engine, knowledgeController *knowledgeController.KnowledgeController) {
 	routerGroup := router.Group("/knowledge")
 	{
-		routerGroup.POST("",middleware.JWTMiddleware(), knowledgeController.InsertText)
+		routerGroup.POST("",middleware.JWTMiddleware(), knowledgeController.UpsertText)
+		routerGroup.PUT("",middleware.JWTMiddleware(), knowledgeController.UpsertText)
 	}
 }
