@@ -11,5 +11,7 @@ func RegisterKnowledgeRoutes(router *gin.Engine, knowledgeController *knowledgeC
 	{
 		routerGroup.POST("",middleware.JWTMiddleware(), knowledgeController.UpsertText)
 		routerGroup.PUT("",middleware.JWTMiddleware(), knowledgeController.UpsertText)
+		routerGroup.DELETE("",middleware.JWTMiddleware(), knowledgeController.UpsertText)
+		routerGroup.GET("",middleware.JWTMiddleware(), knowledgeController.UpsertText)
 	}
 }

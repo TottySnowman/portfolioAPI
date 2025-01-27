@@ -40,3 +40,11 @@ func (con *KnowledgeController) UpsertText(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 	}
 }
+
+func (con *KnowledgeController) DeleteSinglePoint(ctx *gin.Context) {
+	var prompt *chatModel.PromptModel
+	if err := ctx.ShouldBindJSON(&prompt); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+}
