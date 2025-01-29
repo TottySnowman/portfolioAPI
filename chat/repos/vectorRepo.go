@@ -193,7 +193,7 @@ func (repo *VectorRepo) convertFoundVectorsToPromptableResponse(foundVectors []*
 
 			response = append(response, project)
 		} else {
-      qdrantText, _ := payload["text"]
+			qdrantText, _ := payload["text"]
 			response = append(response, qdrantText.GetStringValue())
 		}
 	}
@@ -218,6 +218,34 @@ func (repo *VectorRepo) getStringyfiedProject(projectId int64) string {
 	return stringyfiedProject
 }
 
+func (repo *VectorRepo) DeleteSinglePoint(pointId string) error {
+	_, err := repo.client.DeleteVectors(context.Background(), &qdrant.DeletePointVectors{
+		CollectionName: collectionName,
+		PointsSelector: qdrant.NewPointsSelector(
+			qdrant.NewID(pointId)),
+	})
+
+	return err
+}
+
+func (repo *VectorRepo) GetFullKnowledgeBase() []*qdrant.RetrievedPoint {
+	filter := &qdrant.Filter{
+		Must: []*qdrant.Condition{
+			qdrant.NewIsEmpty("project_id"),
+		},
+	}
+
+	points, err := repo.client.Scroll(context.Background(), &qdrant.ScrollPoints{
+		CollectionName: collectionName,
+		Filter:         filter,
+		WithPayload:    qdrant.NewWithPayload(true),
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	return points
+}
 func (repo *VectorRepo) FullResetDatabase() error {
 	return repo.client.DeleteCollection(context.Background(), collectionName)
 }

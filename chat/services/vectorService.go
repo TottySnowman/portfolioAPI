@@ -4,6 +4,7 @@ import (
 	"fmt"
 	chatModel "portfolioAPI/chat/models"
 	vectorRepo "portfolioAPI/chat/repos"
+	knowledgeModels "portfolioAPI/knowledge/models"
 	projectModel "portfolioAPI/project/models"
 	projectService "portfolioAPI/project/services"
 	tagModel "portfolioAPI/tag/models"
@@ -128,4 +129,29 @@ func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel) (str
 
 func (service *VectorService) UpsertText(vector chatModel.FeatureExtractionResponse, text string, textId string) error {
 	return service.vectorRepo.UpsertText(vector, text, textId)
+}
+
+func (service *VectorService) DeleteSinglePoint(pointId string) error {
+	return service.vectorRepo.DeleteSinglePoint(pointId)
+}
+
+func (service *VectorService) GetFullKnowledgeBase() []knowledgeModels.KnowledgeDisplayModel {
+	knowledgeBase := make([]knowledgeModels.KnowledgeDisplayModel, 0)
+	existingPoints := service.vectorRepo.GetFullKnowledgeBase()
+
+	if len(existingPoints) == 0 {
+		return nil
+	}
+
+	for _, existingPoint := range existingPoints {
+		payload := existingPoint.GetPayload()
+
+		qdrantText, _ := payload["text"]
+		knowledgeBase = append(knowledgeBase, knowledgeModels.KnowledgeDisplayModel{
+			Text:    qdrantText.GetStringValue(),
+			PointId: existingPoint.Id.GetUuid(),
+		})
+	}
+
+	return knowledgeBase
 }
