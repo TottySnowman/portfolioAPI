@@ -5,5 +5,5 @@ type DeleteModel struct{
 
 type KnowledgeDisplayModel struct{
   PointId string `json:"pointId"`
-  Text string `json:"text"`
+  Text string `json:"Prompt"`
 }
