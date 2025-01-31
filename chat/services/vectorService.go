@@ -9,6 +9,8 @@ import (
 	projectService "portfolioAPI/project/services"
 	tagModel "portfolioAPI/tag/models"
 	"strings"
+
+	"github.com/qdrant/go-client/qdrant"
 )
 
 type VectorService struct {
@@ -127,8 +129,14 @@ func (service *VectorService) GetChatMessage(prompt *chatModel.PromptModel) (str
 	return response, nil
 }
 
-func (service *VectorService) UpsertText(vector chatModel.FeatureExtractionResponse, text string, textId string) error {
-	return service.vectorRepo.UpsertText(vector, text, textId)
+func (service *VectorService) UpsertText(vector chatModel.FeatureExtractionResponse, text string, textId string) (knowledgeModels.KnowledgeDisplayModel, error) {
+	modifiedPoint, err := service.vectorRepo.UpsertText(vector, text, textId)
+	if err != nil {
+		return knowledgeModels.KnowledgeDisplayModel{}, err
+	}
+
+	displayPoint := service.ConvertPayloadIntoDisplayText(modifiedPoint.Payload, modifiedPoint.Id.GetUuid())
+	return displayPoint, nil
 }
 
 func (service *VectorService) DeleteSinglePoint(pointId string) error {
@@ -145,13 +153,16 @@ func (service *VectorService) GetFullKnowledgeBase() []knowledgeModels.Knowledge
 
 	for _, existingPoint := range existingPoints {
 		payload := existingPoint.GetPayload()
-
-		qdrantText, _ := payload["text"]
-		knowledgeBase = append(knowledgeBase, knowledgeModels.KnowledgeDisplayModel{
-			Text:    qdrantText.GetStringValue(),
-			PointId: existingPoint.Id.GetUuid(),
-		})
+		knowledgeBase = append(knowledgeBase, service.ConvertPayloadIntoDisplayText(payload, existingPoint.Id.GetUuid()))
 	}
 
 	return knowledgeBase
+}
+
+func (service *VectorService) ConvertPayloadIntoDisplayText(payload map[string]*qdrant.Value, pointId string) knowledgeModels.KnowledgeDisplayModel {
+	qdrantText, _ := payload["text"]
+	return knowledgeModels.KnowledgeDisplayModel{
+		Text:    qdrantText.GetStringValue(),
+		PointId: pointId,
+	}
 }

@@ -58,31 +58,38 @@ func (repo *VectorRepo) CreateCollection() error {
 	return err
 }
 
-func (repo *VectorRepo) UpsertText(vector chatModel.FeatureExtractionResponse, text string, textId string) error {
+func (repo *VectorRepo) UpsertText(vector chatModel.FeatureExtractionResponse, text string, textId string) (*qdrant.ScoredPoint, error) {
 	textPoint := qdrant.NewID(uuid.NewString())
 
 	if textId != "" {
-		textPoint = repo.GetExistingPoint(textId)
+		textPoint = repo.GetExistingPoint(textId).Id
 	}
 
 	convertedText := map[string]interface{}{
 		"text": text,
 	}
 
-	return repo.upsertVector(textPoint, vector, convertedText)
+  if err := repo.upsertVector(textPoint, vector, convertedText); err != nil{
+    return nil, err
+  }
+
+  point := repo.GetExistingPoint(textPoint.GetUuid())
+
+  return point, nil
 }
 
-func (repo *VectorRepo) GetExistingPoint(pointId string) *qdrant.PointId {
+func (repo *VectorRepo) GetExistingPoint(pointId string) *qdrant.ScoredPoint {
 	point, err := repo.client.Query(context.Background(), &qdrant.QueryPoints{
 		CollectionName: collectionName,
 		Query:          qdrant.NewQueryID(qdrant.NewID(pointId)),
+    WithPayload:    qdrant.NewWithPayload(true),
 	})
 
 	if err != nil {
 		panic(err)
 	}
 	if point != nil && len(point) > 0 {
-		return point[0].Id
+		return point[0]
 	}
 	return nil
 }

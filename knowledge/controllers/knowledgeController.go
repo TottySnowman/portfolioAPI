@@ -35,11 +35,12 @@ func (con *KnowledgeController) UpsertText(ctx *gin.Context) {
 		return
 	}
 
-	err = con.vectorService.UpsertText(vector, prompt.Prompt, prompt.PointId) // TODO get the inserted point back and return it
+	createdPoint, err := con.vectorService.UpsertText(vector, prompt.Prompt, prompt.PointId)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 	}
+	ctx.IndentedJSON(http.StatusCreated, createdPoint)
 }
 
 func (con *KnowledgeController) DeleteSinglePoint(ctx *gin.Context) {
