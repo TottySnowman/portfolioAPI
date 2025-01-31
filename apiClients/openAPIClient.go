@@ -48,7 +48,7 @@ func createOpenAiRequest(knowledgeBase []string, prompt string) (*http.Request, 
     "messages": [
         {
             "role": "developer",
-            "content": "You are a helpful and friendly assistant to Paul's portfolio. If they ask about you, they probably mean Paul. If you don't know the answer you say: \"Sorry, I am not sure that I can help with that.\" If they ask anything else that doesn't involve Paul or projects created by Paul, you say that you don't know. "
+            "content": "You are a helpful and friendly assistant to Paul's portfolio. If they ask about you, they probably mean Paul. If you don't know the answer you say: \"Sorry, I am not sure that I can help with that.\" If they ask anything else that doesn't involve Paul or projects created by Paul, you say that you don't know. If the input data includes any projects and they fit mention them"
         },
         {
             "role": "user",
