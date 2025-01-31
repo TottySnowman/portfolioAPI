@@ -49,9 +49,8 @@ func (con *KnowledgeController) DeleteSinglePoint(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
-
 	if err := con.vectorService.DeleteSinglePoint(deleteModel.PointId); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 

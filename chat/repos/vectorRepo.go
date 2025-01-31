@@ -62,30 +62,30 @@ func (repo *VectorRepo) UpsertText(vector chatModel.FeatureExtractionResponse, t
 	textPoint := qdrant.NewID(uuid.NewString())
 
 	if textId != "" {
-    existingPoint := repo.GetExistingPoint(textId).Id
-    if existingPoint != nil{
-      textPoint = qdrant.NewIDUUID(textId)
-    }
+		existingPoint := repo.GetExistingPoint(textId).Id
+		if existingPoint != nil {
+			textPoint = qdrant.NewIDUUID(textId)
+		}
 	}
 
 	convertedText := map[string]interface{}{
 		"text": text,
 	}
 
-  if err := repo.upsertVector(textPoint, vector, convertedText); err != nil{
-    return nil, err
-  }
+	if err := repo.upsertVector(textPoint, vector, convertedText); err != nil {
+		return nil, err
+	}
 
-  point := repo.GetExistingPoint(textPoint.GetUuid())
+	point := repo.GetExistingPoint(textPoint.GetUuid())
 
-  return point, nil
+	return point, nil
 }
 
 func (repo *VectorRepo) GetExistingPoint(pointId string) *qdrant.ScoredPoint {
 	point, err := repo.client.Query(context.Background(), &qdrant.QueryPoints{
 		CollectionName: collectionName,
 		Query:          qdrant.NewQueryID(qdrant.NewID(pointId)),
-    WithPayload:    qdrant.NewWithPayload(true),
+		WithPayload:    qdrant.NewWithPayload(true),
 	})
 
 	if err != nil {
@@ -229,10 +229,11 @@ func (repo *VectorRepo) getStringyfiedProject(projectId int64) string {
 }
 
 func (repo *VectorRepo) DeleteSinglePoint(pointId string) error {
-	_, err := repo.client.DeleteVectors(context.Background(), &qdrant.DeletePointVectors{
+	_, err := repo.client.Delete(context.Background(), &qdrant.DeletePoints{
 		CollectionName: collectionName,
-		PointsSelector: qdrant.NewPointsSelector(
-			qdrant.NewID(pointId)),
+		Points: qdrant.NewPointsSelector(
+			qdrant.NewIDUUID(pointId),
+		),
 	})
 
 	return err
