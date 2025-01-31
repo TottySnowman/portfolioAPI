@@ -62,7 +62,10 @@ func (repo *VectorRepo) UpsertText(vector chatModel.FeatureExtractionResponse, t
 	textPoint := qdrant.NewID(uuid.NewString())
 
 	if textId != "" {
-		textPoint = repo.GetExistingPoint(textId).Id
+    existingPoint := repo.GetExistingPoint(textId).Id
+    if existingPoint != nil{
+      textPoint = qdrant.NewIDUUID(textId)
+    }
 	}
 
 	convertedText := map[string]interface{}{
