@@ -10,19 +10,41 @@ import (
 	"strings"
 )
 
+type ProjectUpdateListener interface {
+	OnProjectUpdated(project projectModel.ProjectDisplay)
+	OnProjectDeleted(projectId int)
+}
+
 type ProjectService struct {
-	repository  *project_repo.Project_Repo
-	tagService  *tagService.TagService
-	fileService *fileServices.FileService
+	repository      *project_repo.Project_Repo
+	tagService      *tagService.TagService
+	fileService     *fileServices.FileService
+	updateListeners []ProjectUpdateListener
 }
 
 func NewProjectService(projectRepo *project_repo.Project_Repo,
 	tagService *tagService.TagService,
 	fileService *fileServices.FileService) *ProjectService {
 	return &ProjectService{
-		repository:  projectRepo,
-		tagService:  tagService,
-		fileService: fileService,
+		repository:      projectRepo,
+		tagService:      tagService,
+		fileService:     fileService,
+		updateListeners: []ProjectUpdateListener{},
+	}
+}
+func (service *ProjectService) RegisterListener(listener ProjectUpdateListener) {
+	service.updateListeners = append(service.updateListeners, listener)
+}
+
+func (service *ProjectService) notifyProjectUpdated(project projectModel.ProjectDisplay) {
+	for _, listener := range service.updateListeners {
+		listener.OnProjectUpdated(project)
+	}
+}
+
+func (service *ProjectService) notifyProjectDeleted(projectId int) {
+	for _, listener := range service.updateListeners {
+		listener.OnProjectDeleted(projectId)
 	}
 }
 
@@ -45,6 +67,10 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
 		return nil, err
 	}
 
+	if !mappedProject.Hidden {
+		service.notifyProjectUpdated(*mappedProject)
+	}
+
 	return mappedProject, nil
 }
 
@@ -63,6 +89,9 @@ func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*pro
 		return nil, err
 	}
 
+	if !mappedProject.Hidden {
+		service.notifyProjectUpdated(*mappedProject)
+	}
 	return mappedProject, nil
 }
 
@@ -99,12 +128,16 @@ func (service *ProjectService) Delete(projectID int) error {
 		return err
 	}
 
-  existingProject.Logo_Path = service.removeUrlPrefix(existingProject.Logo_Path)
+	if !existingProject.Hidden {
+		service.notifyProjectDeleted(existingProject.ProjectID)
+	}
+
+	existingProject.Logo_Path = service.removeUrlPrefix(existingProject.Logo_Path)
 	return service.fileService.HandleFileDelete("/logo", existingProject.Logo_Path)
 }
 
-func (service *ProjectService) removeUrlPrefix(url string) string{
-  return strings.TrimPrefix(url, os.Getenv("API_ENDPOINT_URL"))
+func (service *ProjectService) removeUrlPrefix(url string) string {
+	return strings.TrimPrefix(url, os.Getenv("API_ENDPOINT_URL"))
 }
 
 func (service *ProjectService) GetProjectById(projectId int, includeHidden bool) (*projectModel.ProjectDisplay, error) {
@@ -119,7 +152,6 @@ func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel
 
 	return convertedTags
 }
-
 
 func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.Project {
 	return projectModel.Project{

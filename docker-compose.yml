@@ -13,10 +13,12 @@ services:
       - "3306:3306"
     volumes:
       - portfolioData:/var/lib/mysql
+
+  # Go application
   app:
     build:
-      context: .  
-      dockerfile: Dockerfile  
+      context: .
+      dockerfile: Dockerfile
     container_name: go-app
     restart: always
     volumes:
@@ -24,7 +26,26 @@ services:
     command: ["air"]
     depends_on:
       - mysql
+      - qdrant
     ports:
-      - "6001:6001"  
+      - "6001:6001"
+
+  # Qdrant Service
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data_volume:/qdrant/storage
+    configs:
+      - source: qdrant_config
+configs:
+  qdrant_config:
+    content: |
+      log_level: INFO
 volumes:
   portfolioData:
+  qdrant_data_volume:
