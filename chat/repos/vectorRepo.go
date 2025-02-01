@@ -262,9 +262,31 @@ func (repo *VectorRepo) FullResetDatabase() error {
 }
 
 func (repo *VectorRepo) ResetProject() error {
-	return nil
+	filter := &qdrant.Filter{
+		MustNot: []*qdrant.Condition{
+			qdrant.NewIsEmpty("project_id"),
+		},
+	}
+	_, err := repo.client.Delete(context.Background(), &qdrant.DeletePoints{
+		CollectionName: collectionName,
+		Points: qdrant.NewPointsSelectorFilter(
+      filter,
+		),
+	})
+	return err
 }
 
 func (repo *VectorRepo) ResetPersonal() error {
-	return nil
+	filter := &qdrant.Filter{
+		Must: []*qdrant.Condition{
+			qdrant.NewIsEmpty("project_id"),
+		},
+	}
+	_, err := repo.client.Delete(context.Background(), &qdrant.DeletePoints{
+		CollectionName: collectionName,
+		Points: qdrant.NewPointsSelectorFilter(
+      filter,
+		),
+	})
+	return err
 }

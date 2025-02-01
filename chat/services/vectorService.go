@@ -62,7 +62,12 @@ func (service *VectorService) ResetDatabase(syncModel *knowledgeModels.SyncModel
 	}
 
 	if syncModel.ResetProject {
-		return service.vectorRepo.ResetProject()
+		if err := service.vectorRepo.ResetProject(); err != nil {
+			return err
+		}
+
+		service.InsertProjectsAsync()
+		return nil
 	}
 
 	if syncModel.ResetPersonal {

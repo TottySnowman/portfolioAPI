@@ -9,6 +9,6 @@ type KnowledgeDisplayModel struct{
 }
 
 type SyncModel struct {
-	ResetProject  bool
-	ResetPersonal bool
+	ResetProject  bool `json:"resetProject"`
+	ResetPersonal bool `json:"resetPersonal"`
 }
