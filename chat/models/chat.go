@@ -19,7 +19,3 @@ type ModifyPersonalModel struct {
   PointId *uint64
 }
 
-type SyncModel struct {
-	ResetProject  bool
-	ResetPersonal bool
-}

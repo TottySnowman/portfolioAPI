@@ -13,5 +13,7 @@ func RegisterKnowledgeRoutes(router *gin.Engine, knowledgeController *knowledgeC
 		routerGroup.PUT("", middleware.JWTMiddleware(), knowledgeController.UpsertText)
 		routerGroup.DELETE("", middleware.JWTMiddleware(), knowledgeController.DeleteSinglePoint)
 		routerGroup.GET("", middleware.JWTMiddleware(), knowledgeController.GetKnowledgeBase)
+		routerGroup.POST("/fullSync", middleware.JWTMiddleware(), knowledgeController.FullSync)
+		routerGroup.POST("/sync", middleware.JWTMiddleware(), knowledgeController.Sync)
 	}
 }

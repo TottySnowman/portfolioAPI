@@ -26,19 +26,6 @@ func NewChatController(embeddingService *chatService.EmbeddingService,
 	}
 }
 
-func (con *ChatController) FullSync(context *gin.Context) {
-	syncSettings := &chatModel.SyncModel{
-		ResetProject:  true,
-		ResetPersonal: true,
-	}
-
-	if err := con.vectorService.ResetDatabase(syncSettings); err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
-		return
-	}
-
-	con.vectorService.InsertProjectsAsync()
-}
 
 func (con *ChatController) Chat(context *gin.Context) {
 	var prompt *chatModel.PromptModel
@@ -58,18 +45,6 @@ func (con *ChatController) Chat(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, gin.H{"message": message})
 }
 
-func (con *ChatController) Sync(context *gin.Context) {
-	var syncSettings *chatModel.SyncModel
-	if err := context.ShouldBindJSON(&syncSettings); err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
-		return
-	}
-
-	if err := con.vectorService.ResetDatabase(syncSettings); err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
-		return
-	}
-}
 
 func (con *ChatController) CreateWsConnection(cxt *gin.Context) {
 	wsConnection := con.wsService.GetWebsocketConnection(cxt)

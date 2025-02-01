@@ -61,3 +61,31 @@ func (con *KnowledgeController) GetKnowledgeBase(ctx *gin.Context) {
 	knowledgeBase := con.vectorService.GetFullKnowledgeBase()
 	ctx.IndentedJSON(http.StatusOK, knowledgeBase)
 }
+
+func (con *KnowledgeController) FullSync(ctx *gin.Context) {
+	syncSettings := &knowledgeModels.SyncModel{
+		ResetProject:  true,
+		ResetPersonal: true,
+	}
+
+	if err := con.vectorService.ResetDatabase(syncSettings); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
+		return
+	}
+
+	con.vectorService.InsertProjectsAsync()
+}
+
+
+func (con *KnowledgeController) Sync(context *gin.Context) {
+	var syncSettings *knowledgeModels.SyncModel
+	if err := context.ShouldBindJSON(&syncSettings); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+
+	if err := con.vectorService.ResetDatabase(syncSettings); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err})
+		return
+	}
+}

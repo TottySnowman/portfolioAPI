@@ -7,3 +7,8 @@ type KnowledgeDisplayModel struct{
   PointId string `json:"pointId"`
   Text string `json:"Prompt"`
 }
+
+type SyncModel struct {
+	ResetProject  bool
+	ResetPersonal bool
+}

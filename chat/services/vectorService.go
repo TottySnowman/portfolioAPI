@@ -47,7 +47,7 @@ func (service *VectorService) OnProjectDeleted(projectId int) {
 	service.vectorRepo.DeleteProjectPoint(projectId)
 }
 
-func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) error {
+func (service *VectorService) ResetDatabase(syncModel *knowledgeModels.SyncModel) error {
 	if !syncModel.ResetProject && !syncModel.ResetPersonal {
 		return nil
 	}
@@ -58,7 +58,7 @@ func (service *VectorService) ResetDatabase(syncModel *chatModel.SyncModel) erro
 			return err
 		}
 
-		service.vectorRepo.CreateCollection()
+		return service.vectorRepo.CreateCollection()
 	}
 
 	if syncModel.ResetProject {
