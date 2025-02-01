@@ -3,8 +3,10 @@ package router
 import (
 	"os"
 	authRouter "portfolioAPI/authentication/router"
+	chatRoutes "portfolioAPI/chat/router"
 	dependencyinjection "portfolioAPI/dependencyInjection"
 	fileRoutes "portfolioAPI/fileUpload/router"
+	knowledgeRoutes "portfolioAPI/knowledge/router"
 	project_routes "portfolioAPI/project/router"
 	statusRoutes "portfolioAPI/status/router"
 	tagRoutes "portfolioAPI/tag/router"
@@ -23,8 +25,9 @@ func SetupRouter(router *gin.Engine, appContainer *dependencyinjection.AppContai
 }
 
 func setupCors(router *gin.Engine) {
-	corsOrigin0 := os.Getenv("CORS_ORIGIN0")
-	corsOrigin1 := os.Getenv("CORS_ORIGIN1")
+	//corsOrigin0 := os.Getenv("CORS_ORIGIN0")
+	//corsOrigin1 := os.Getenv("CORS_ORIGIN1")
+	//corsOrigin2 := os.Getenv("CORS_ORIGIN2")
 
 	release := os.Getenv("GIN_MODE")
 	if strings.Compare(release, "release") == 0 {
@@ -32,7 +35,8 @@ func setupCors(router *gin.Engine) {
 	}
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{corsOrigin0, corsOrigin1},
+		//AllowOrigins:     []string{corsOrigin0, corsOrigin1, corsOrigin2},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "DELETE", "POST", "PUT"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -45,8 +49,9 @@ func setupRoutes(router *gin.Engine, appContainer *dependencyinjection.AppContai
 	project_routes.RegisterProjectRoutes(router, appContainer.ProjectController)
 	tagRoutes.RegisterTagRoutes(router, appContainer.TagController)
 	statusRoutes.RegisterTagRoutes(router, appContainer.StatusController)
-
+	chatRoutes.RegisterChatRoutes(router, appContainer.ChatController)
 	fileRoutes.RegisterFileRoutes(router, appContainer.FileController)
+	knowledgeRoutes.RegisterKnowledgeRoutes(router, appContainer.KnowledgeController)
 	authRouter.RegisterAuthRouter(router)
 }
 

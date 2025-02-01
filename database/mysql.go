@@ -25,21 +25,22 @@ func initMySql() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
+		return
 	}
 
-  databaseURL := os.Getenv("DB_DSN")
+	databaseURL := os.Getenv("DB_DSN")
 	db, err := gorm.Open(mysql.Open(databaseURL), &gorm.Config{
-    Logger: logger.Default.LogMode(logger.Info),
-    NamingStrategy: schema.NamingStrategy{
-      SingularTable: true,
-      NoLowerCase: true,
-    },
-  })
+		Logger: logger.Default.LogMode(logger.Info),
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+			NoLowerCase:   true,
+		},
+	})
 	if err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
-  db.AutoMigrate(&projectModel.Project{}, &tagModel.Tag{}, &projectModel.ProjectStatus{}, &authenticationModel.User{})
+	db.AutoMigrate(&projectModel.Project{}, &tagModel.Tag{}, &projectModel.ProjectStatus{}, &authenticationModel.User{})
 
 	fmt.Println("Database connection successful!")
 	database = db
