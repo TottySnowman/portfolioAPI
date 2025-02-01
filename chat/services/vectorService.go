@@ -153,7 +153,7 @@ func (service *VectorService) GetFullKnowledgeBase() []knowledgeModels.Knowledge
 	existingPoints := service.vectorRepo.GetFullKnowledgeBase()
 
 	if len(existingPoints) == 0 {
-		return nil
+		return knowledgeBase
 	}
 
 	for _, existingPoint := range existingPoints {
