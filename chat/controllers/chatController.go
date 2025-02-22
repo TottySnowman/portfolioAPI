@@ -2,7 +2,6 @@ package chatController
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	chatModel "portfolioAPI/chat/models"
 	chatService "portfolioAPI/chat/services"
@@ -38,7 +37,7 @@ func (con *ChatController) Chat(context *gin.Context) {
 	message, err := con.vectorService.GetChatMessage(prompt)
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
