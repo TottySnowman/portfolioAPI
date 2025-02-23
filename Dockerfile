@@ -1,10 +1,13 @@
 # Dockerfile for the Go app starter
 
 # Use the official Golang image as the base
-FROM golang:1.22
+FROM golang:1.23
 
 # Set the working directory inside the container
 WORKDIR /app
+
+# Add air for hotreloading
+RUN go install github.com/air-verse/air@latest
 
 # Copy the Go module files and install dependencies
 COPY go.mod go.sum ./
@@ -17,8 +20,8 @@ COPY . .
 RUN go build -o main .
 
 # Expose the application port
-EXPOSE 8000
+EXPOSE 6001
 
 # Set the default command for Docker, to either reset Docker or start the app
-CMD ["./main"]
+CMD ["air"]
 

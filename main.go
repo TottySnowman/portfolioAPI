@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	dependencyinjection "portfolioAPI/dependencyInjection"
 	routerConfig "portfolioAPI/router"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,8 @@ func main() {
 
 	router := gin.Default()
 
-	routerConfig.SetupRouter(router)
+  appContainer := dependencyinjection.NewAppContainer()
+	routerConfig.SetupRouter(router, appContainer)
 	serverPort := os.Getenv("SERVER_PORT")
 
 	router.Run(":" + serverPort)

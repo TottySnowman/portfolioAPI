@@ -1,0 +1,48 @@
+services:
+  # MySQL Service
+  mysql:
+    image: reg.paul-wortmann.me/portfolio_api/mysql:latest
+    container_name: portfolio-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: reallyStrongRootPWD!
+      MYSQL_DATABASE: portfolio
+      MYSQL_USER: portfolioUser
+      MYSQL_PASSWORD: reallyStrongPWD!
+    ports:
+      - "3306:3306"
+    volumes:
+      - portfolioData:/var/lib/mysql
+
+  # Go application
+  app:
+    image: reg.paul-wortmann.me/portfolio_api/app:latest  # Use the pre-built image
+    container_name: go-app
+    restart: always
+    depends_on:
+      - mysql
+      - qdrant
+    ports:
+      - "6001:6001"
+    env_file: 
+      - .env
+
+  # Qdrant Service
+  qdrant:
+    image: reg.paul-wortmann.me/portfolio_api/qdrant:latest
+    restart: always
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data_volume:/qdrant/storage
+    configs:
+      - source: qdrant_config
+configs:
+  qdrant_config:
+    content: |
+      log_level: INFO
+volumes:
+  portfolioData:
+  qdrant_data_volume:

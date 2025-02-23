@@ -1,0 +1,39 @@
+meta {
+  name: Update Project
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:6001/project
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: 
+}
+
+body:json {
+  {
+    "ProjectID": 60,
+    "name": "Updated something",
+    "about": "Update",
+    "GithubLink": "https://github.com/username/my-awesome-project",
+    "DemoLink": "https://myproject-demo.com",
+    "LogoPath": "/static/images/project-logo.png",
+    "DevDate": "2023-05-06T00:00:00Z",
+    "Hidden": false,
+    "Status": {
+      "Status": "On going",
+      "StatusID": 1
+    },
+    "Tags": [
+      {
+        "TagId": 17,
+        "Icon": "TEST",
+        "Tag": "TEST"
+      }
+    ]
+  }
+}
