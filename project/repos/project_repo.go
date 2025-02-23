@@ -2,8 +2,8 @@ package project_repo
 
 import (
 	"errors"
-	"fmt"
 	"os"
+  "fmt"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
 	statusModels "portfolioAPI/status/models"
@@ -74,10 +74,7 @@ func (repo *Project_Repo) GetProjectById(projectId int, includeHidden bool) (*pr
 }
 
 func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectModel.ProjectDisplay {
-
 	apiURL := os.Getenv("API_ENDPOINT_URL")
-
-  //apiURL = "http://localhost:6001"
 	projectMap := make(map[int]*projectModel.ProjectDisplay)
 	for _, project := range projects {
 		_, projectExists := projectMap[project.ProjectID]
