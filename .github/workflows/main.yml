@@ -32,12 +32,13 @@ jobs:
           echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
           echo "API_ENDPOINT_URL=${{ secrets.API_ENDPOINT_URL }}" >> .env
           
+      - name: Set up Docker Compose file for CI/CD
+        run: |
+          sed -i 's|image: mysql:8.0|image: reg.paul-wortmann.me/portfolio_api/mysql:latest|' docker-compose.yml
+          sed -i 's|image: qdrant/qdrant:latest|image: reg.paul-wortmann.me/portfolio_api/qdrant:latest|' docker-compose.yml
+          sed -i 's|build:|image: reg.paul-wortmann.me/portfolio_api/app:latest\n    build:|' docker-compose.yml
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: | 
-            reg.paul-wortmann.me/portfolio_api/portfolio_api:latest
-            reg.paul-wortmann.me/portfolio_api/portfolio_api:${{ github.sha }}
+      - name: Build and Push Images using Docker Compose
+        run: |
+          docker compose build
+          docker compose push
