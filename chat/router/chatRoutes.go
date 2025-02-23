@@ -1,16 +1,14 @@
 package chatRoutes
 
 import (
-	chatController "portfolioAPI/chat/controllers"
-	middleware "portfolioAPI/router/authorization"
 	"github.com/gin-gonic/gin"
+	chatController "portfolioAPI/chat/controllers"
 )
 
 func RegisterChatRoutes(router *gin.Engine, chatController *chatController.ChatController) {
 	routerGroup := router.Group("/chat")
 	{
-		routerGroup.POST("/",middleware.JWTMiddleware(), chatController.Chat)
+		routerGroup.POST("", chatController.Chat)
 		routerGroup.GET("/ws", chatController.CreateWsConnection)
 	}
 }
-

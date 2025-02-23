@@ -3,6 +3,7 @@ package apiClients
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -36,6 +37,10 @@ func (apiClient *OpenAiClient) GetSummaryResponse(knowledgeBase []string, prompt
 	if err != nil {
 		return "", err
 	}
+
+  if len(body.Choices) == 0{
+    return "", errors.New("No answer could be generated! Please try again!")
+  }
 
 	return body.Choices[0].Message.Content, nil
 }

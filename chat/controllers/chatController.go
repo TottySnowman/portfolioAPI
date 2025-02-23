@@ -2,7 +2,6 @@ package chatController
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	chatModel "portfolioAPI/chat/models"
 	chatService "portfolioAPI/chat/services"
@@ -38,7 +37,7 @@ func (con *ChatController) Chat(context *gin.Context) {
 	message, err := con.vectorService.GetChatMessage(prompt)
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
@@ -54,27 +53,21 @@ func (con *ChatController) CreateWsConnection(cxt *gin.Context) {
 	}
 
 	for {
-		typ, data, err := wsConnection.Read(context.Background())
+		typ, _, err := wsConnection.Read(context.Background())
 		if err != nil {
 			println(err)
 			break
 		}
 
 		if !con.embeddingService.IsModelReady() {
-			wsConnection.Write(context.Background(), typ, []byte("Model is starting..."))
+			wsConnection.Write(context.Background(), typ, []byte("STARTING"))
 			go func() {
 				con.embeddingService.StartModel()
-				wsConnection.Write(context.Background(), typ, []byte("Model started successfully!"))
+				wsConnection.Write(context.Background(), typ, []byte("RUNNING"))
 			}()
 			continue
 		} else {
-			wsConnection.Write(context.Background(), typ, []byte("Model is already running!"))
-		}
-
-		if string(data) == "ping" {
-			err = wsConnection.Write(context.Background(), typ, []byte("pong"))
-		} else {
-			err = wsConnection.Write(context.Background(), typ, []byte(fmt.Sprintf("Hello, %s", string(data))))
+			wsConnection.Write(context.Background(), typ, []byte("RUNNING"))
 		}
 
 		if err != nil {
