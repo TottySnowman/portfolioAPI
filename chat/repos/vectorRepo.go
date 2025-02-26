@@ -26,7 +26,6 @@ func NewVectorRepo(projectService *projectService.ProjectService) *VectorRepo {
 		Host: "qdrant",
 		Port: 6334,
     APIKey: os.Getenv("QDARANT_API_KEY"),
-    UseTLS: true,
 	})
 
 	if err != nil {
