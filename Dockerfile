@@ -17,7 +17,7 @@ COPY . .
 RUN go build -o main .
 
 # Expose the application port
-EXPOSE 8000
+EXPOSE 6001
 
 # Set the default command for Docker, to either reset Docker or start the app
 CMD ["./main"]
