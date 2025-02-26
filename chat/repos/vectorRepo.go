@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	chatModel "portfolioAPI/chat/models"
 	projectService "portfolioAPI/project/services"
 	"strconv"
@@ -24,6 +25,8 @@ func NewVectorRepo(projectService *projectService.ProjectService) *VectorRepo {
 	client, err := qdrant.NewClient(&qdrant.Config{
 		Host: "qdrant",
 		Port: 6334,
+    APIKey: os.Getenv("QDARANT_API_KEY"),
+    UseTLS: true,
 	})
 
 	if err != nil {
