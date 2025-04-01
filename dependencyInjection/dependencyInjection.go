@@ -5,6 +5,8 @@ import (
 	chatController "portfolioAPI/chat/controllers"
 	vectorRepo "portfolioAPI/chat/repos"
 	chatService "portfolioAPI/chat/services"
+	contactController "portfolioAPI/contact/controllers"
+	contactService "portfolioAPI/contact/services"
 	fileController "portfolioAPI/fileUpload/controllers"
 	fileHandler "portfolioAPI/fileUpload/handler"
 	fileServices "portfolioAPI/fileUpload/services"
@@ -21,12 +23,13 @@ import (
 )
 
 type AppContainer struct {
-	ProjectController *projectController.ProjectController
-	TagController     *tagController.TagController
-	StatusController  *statusController.StatusController
-	FileController    *fileController.FileController
-	ChatController    *chatController.ChatController
-  KnowledgeController *knowledgeController.KnowledgeController
+	ProjectController   *projectController.ProjectController
+	TagController       *tagController.TagController
+	StatusController    *statusController.StatusController
+	FileController      *fileController.FileController
+	ChatController      *chatController.ChatController
+	KnowledgeController *knowledgeController.KnowledgeController
+	ContactController   *contactController.ContactController
 }
 
 type repos struct {
@@ -44,6 +47,7 @@ type services struct {
 	embeddingService *chatService.EmbeddingService
 	vectorService    *chatService.VectorService
 	wsService        *chatService.WsService
+	contactService   *contactService.ContactService
 }
 
 func NewAppContainer() *AppContainer {
@@ -51,12 +55,13 @@ func NewAppContainer() *AppContainer {
 	services := getServices(repos)
 
 	return &AppContainer{
-		ProjectController: projectController.NewProjectController(services.projectService),
-		TagController:     tagController.NewTagController(services.tagService),
-		StatusController:  statusController.NewStatusController(services.statusService),
-		FileController:    fileController.NewFileController(services.fileService),
-		ChatController:    chatController.NewChatController(services.embeddingService, services.vectorService, services.wsService),
-    KnowledgeController: knowledgeController.NewKnowledgeController(services.vectorService, services.embeddingService),
+		ProjectController:   projectController.NewProjectController(services.projectService),
+		TagController:       tagController.NewTagController(services.tagService),
+		StatusController:    statusController.NewStatusController(services.statusService),
+		FileController:      fileController.NewFileController(services.fileService),
+		ChatController:      chatController.NewChatController(services.embeddingService, services.vectorService, services.wsService),
+		KnowledgeController: knowledgeController.NewKnowledgeController(services.vectorService, services.embeddingService),
+		ContactController:   contactController.NewContactController(services.contactService),
 	}
 }
 
@@ -87,5 +92,6 @@ func getServices(repos repos) services {
 		embeddingService: embeddingService,
 		vectorService:    chatService.NewVectorService(repos.vectorRepo, embeddingService, projectService, responseService),
 		wsService:        chatService.NewWsService(),
+		contactService:   contactService.NewContactService(),
 	}
 }
