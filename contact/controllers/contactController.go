@@ -26,8 +26,9 @@ func (con *ContactController) SendEmail(ctx *gin.Context) {
 	}
 
 	err := con.service.SendMail(*emailModel)
-if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "Failed to send email"})
 		return
 	}
 
