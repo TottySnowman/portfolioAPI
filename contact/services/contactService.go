@@ -24,7 +24,8 @@ func (service *ContactService) SendMail(messageModel contactModels.ContactModel)
 		"Subject: New Message from Portfolio" +
 			"\r\n" +
 			messageModel.Message + "\r\n" +
-			"Message from:" + messageModel.From + "\r\n")
+    "Message from: " + messageModel.From + "\r\n" + 
+    "Name: " + messageModel.Name + "\r\n")
 
   err := smtp.SendMail(smtpHost + ":" + smtpPort, smtpClient, smtpUsername, to, msg)
 	if err != nil {
