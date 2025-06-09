@@ -41,7 +41,7 @@ func initMySql() {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
-	db.AutoMigrate(&projectModel.Project{}, &tagModel.Tag{}, &projectModel.ProjectStatus{}, &authenticationModel.User{}, &journeyModels.Experience{}, journeyModels.Task{})
+	db.AutoMigrate(&projectModel.Project{}, &tagModel.Tag{}, &projectModel.ProjectStatus{}, &authenticationModel.User{}, &journeyModels.Experience{}, &journeyModels.Task{}, &journeyModels.ExperienceType{})
 
 	fmt.Println("Database connection successful!")
 	database = db
