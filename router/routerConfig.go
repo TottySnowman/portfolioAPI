@@ -7,6 +7,7 @@ import (
 	contactRouter "portfolioAPI/contact/router"
 	dependencyinjection "portfolioAPI/dependencyInjection"
 	fileRoutes "portfolioAPI/fileUpload/router"
+	journeyRouter "portfolioAPI/journey/router"
 	knowledgeRoutes "portfolioAPI/knowledge/router"
 	project_routes "portfolioAPI/project/router"
 	statusRoutes "portfolioAPI/status/router"
@@ -53,6 +54,7 @@ func setupRoutes(router *gin.Engine, appContainer *dependencyinjection.AppContai
 	chatRoutes.RegisterChatRoutes(router, appContainer.ChatController)
 	fileRoutes.RegisterFileRoutes(router, appContainer.FileController)
 	knowledgeRoutes.RegisterKnowledgeRoutes(router, appContainer.KnowledgeController)
+  journeyRouter.RegisterJourneyRoutes(router, appContainer.JourneyController)
 	authRouter.RegisterAuthRouter(router)
 }
 

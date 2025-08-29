@@ -10,6 +10,9 @@ import (
 	fileController "portfolioAPI/fileUpload/controllers"
 	fileHandler "portfolioAPI/fileUpload/handler"
 	fileServices "portfolioAPI/fileUpload/services"
+	journeyController "portfolioAPI/journey/controllers"
+	journeyRepo "portfolioAPI/journey/repos"
+	journeyService "portfolioAPI/journey/services"
 	knowledgeController "portfolioAPI/knowledge/controllers"
 	projectController "portfolioAPI/project/controllers"
 	project_repo "portfolioAPI/project/repos"
@@ -30,6 +33,7 @@ type AppContainer struct {
 	ChatController      *chatController.ChatController
 	KnowledgeController *knowledgeController.KnowledgeController
 	ContactController   *contactController.ContactController
+	JourneyController   *journeyController.JourneyController
 }
 
 type repos struct {
@@ -37,6 +41,7 @@ type repos struct {
 	tagRepo     *tagRepo.TagRepo
 	statusRepo  *statusRepo.StatusRepo
 	vectorRepo  *vectorRepo.VectorRepo
+	journeyRepo *journeyRepo.JourneyRepo
 }
 
 type services struct {
@@ -48,6 +53,7 @@ type services struct {
 	vectorService    *chatService.VectorService
 	wsService        *chatService.WsService
 	contactService   *contactService.ContactService
+	journeyService   *journeyService.JourneyService
 }
 
 func NewAppContainer() *AppContainer {
@@ -62,6 +68,7 @@ func NewAppContainer() *AppContainer {
 		ChatController:      chatController.NewChatController(services.embeddingService, services.vectorService, services.wsService),
 		KnowledgeController: knowledgeController.NewKnowledgeController(services.vectorService, services.embeddingService),
 		ContactController:   contactController.NewContactController(services.contactService),
+		JourneyController:   journeyController.NewJourneyController(services.journeyService),
 	}
 }
 
@@ -70,6 +77,7 @@ func getRepos() repos {
 		projectRepo: project_repo.NewProjectRepo(),
 		tagRepo:     tagRepo.NewTagRepo(),
 		statusRepo:  statusRepo.NewStatusRepo(),
+		journeyRepo: journeyRepo.NewJourneyRepo(),
 	}
 }
 
@@ -93,5 +101,6 @@ func getServices(repos repos) services {
 		vectorService:    chatService.NewVectorService(repos.vectorRepo, embeddingService, projectService, responseService),
 		wsService:        chatService.NewWsService(),
 		contactService:   contactService.NewContactService(),
+		journeyService:   journeyService.NewJourneyService(repos.journeyRepo),
 	}
 }

@@ -1,7 +1,7 @@
 # Dockerfile for the Go app starter
 
 # Use the official Golang image as the base
-FROM golang:1.23
+FROM golang:1.24
 
 # Set the working directory inside the container
 WORKDIR /app
