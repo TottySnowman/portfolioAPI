@@ -1,0 +1,29 @@
+meta {
+  name: Create Experience
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:6001/journey
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+        "title": "New Job whooop whoop",
+        "diploma": null,
+        "from": "2015-07-01T00:00:00Z",
+        "to": null,
+        "tasks": [
+          {
+            "Details": "Dev things"
+          },
+          {
+            "Details": "More dev things"
+          }
+        ],
+        "experienceType": 2
+  }
+}

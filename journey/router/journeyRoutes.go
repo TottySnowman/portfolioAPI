@@ -1,15 +1,16 @@
 package journeyRouter
 
 import (
-	journeyController "portfolioAPI/journey/controllers"
-
 	"github.com/gin-gonic/gin"
+	journeyController "portfolioAPI/journey/controllers"
+	middleware "portfolioAPI/router/authorization"
 )
 
 func RegisterJourneyRoutes(router *gin.Engine, journeyController *journeyController.JourneyController) {
 	routerGroup := router.Group("/journey")
 	{
 		routerGroup.GET("", journeyController.GetFullJourney)
+		routerGroup.POST("", middleware.JWTMiddleware(), journeyController.InsertJourney)
 	}
 
 }

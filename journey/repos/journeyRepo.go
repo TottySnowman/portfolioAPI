@@ -20,11 +20,11 @@ func NewJourneyRepo() *JourneyRepo {
 func (repo *JourneyRepo) GetFullJourney() []journeyModels.JourneyDisplay {
 	var selectedJourney []journeyModels.ExperienceSelect
 
-  query := repo.db.
-	Model(&journeyModels.Experience{}).
-	Select("Experience.ID as ExperienceId, Title, Company, `From`, `To`, Diploma, et.Name, t.Details, Experience.ExperienceTypeId").
-	Joins("INNER JOIN ExperienceType as et on et.ID = Experience.ExperienceTypeId").
-	Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID")
+	query := repo.db.
+		Model(&journeyModels.Experience{}).
+		Select("Experience.ID as ExperienceId, Title, Company, `From`, `To`, Diploma, et.Name, t.Details, Experience.ExperienceTypeId").
+		Joins("INNER JOIN ExperienceType as et on et.ID = Experience.ExperienceTypeId").
+		Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID")
 
 	result := query.Find(&selectedJourney)
 	if result.Error != nil {
@@ -34,8 +34,35 @@ func (repo *JourneyRepo) GetFullJourney() []journeyModels.JourneyDisplay {
 	return mapDataRowToExperiences(selectedJourney)
 }
 
-func (repo *JourneyRepo) Insert() *journeyModels.Experience {
-	return nil
+func (repo *JourneyRepo) Insert(experienceToCreate *journeyModels.Experience) (*journeyModels.Experience, error) {
+	result := repo.db.Create(&experienceToCreate)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return *&experienceToCreate, nil
+}
+
+func (repo *JourneyRepo) GetJourney(experienceId uint) (*journeyModels.JourneyDisplay, error) {
+	var selectedJourney []journeyModels.ExperienceSelect
+
+	query := repo.db.
+		Model(&journeyModels.Experience{}).
+		Select("Experience.ID as ExperienceId, Title, Company, `From`, `To`, Diploma, et.Name, t.Details, Experience.ExperienceTypeId").
+		Joins("INNER JOIN ExperienceType as et on et.ID = Experience.ExperienceTypeId").
+		Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID").
+		Where("Experience.ID = ?", experienceId)
+
+	result := query.Find(&selectedJourney)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	experiences := mapDataRowToExperiences(selectedJourney)
+
+	return &experiences[0], nil
 }
 
 func (repo *JourneyRepo) Update() *journeyModels.Experience {
@@ -46,6 +73,7 @@ func mapDataRowToExperiences(journeys []journeyModels.ExperienceSelect) []journe
 	experienceMap := make(map[int]*journeyModels.JourneyDisplay)
 
 	for _, experience := range journeys {
+    println(experience.ExperienceId)
 		_, experienceExists := experienceMap[int(experience.ExperienceId)]
 
 		if !experienceExists {
@@ -55,10 +83,9 @@ func mapDataRowToExperiences(journeys []journeyModels.ExperienceSelect) []journe
 				Diploma:        experience.Diploma,
 				From:           experience.From,
 				To:             experience.To,
-				ExperienceType: journeyModels.ExperienceTypeEnum(experience.ExperienceId),
+				ExperienceType: journeyModels.ExperienceTypeEnum(experience.ExperienceTypeId),
 			}
 		}
-
 
 		if experience.Details != "" {
 			existingExperience, _ := experienceMap[int(experience.ExperienceId)]

@@ -23,6 +23,8 @@ import (
 	tagController "portfolioAPI/tag/controllers"
 	tagRepo "portfolioAPI/tag/repos"
 	tagService "portfolioAPI/tag/services"
+	taskRepo "portfolioAPI/tasks/repos"
+	taskService "portfolioAPI/tasks/services"
 )
 
 type AppContainer struct {
@@ -42,6 +44,7 @@ type repos struct {
 	statusRepo  *statusRepo.StatusRepo
 	vectorRepo  *vectorRepo.VectorRepo
 	journeyRepo *journeyRepo.JourneyRepo
+	taskRepo    *taskRepo.TaskRepo
 }
 
 type services struct {
@@ -54,6 +57,7 @@ type services struct {
 	wsService        *chatService.WsService
 	contactService   *contactService.ContactService
 	journeyService   *journeyService.JourneyService
+	taskService      *taskService.TaskService
 }
 
 func NewAppContainer() *AppContainer {
@@ -78,6 +82,7 @@ func getRepos() repos {
 		tagRepo:     tagRepo.NewTagRepo(),
 		statusRepo:  statusRepo.NewStatusRepo(),
 		journeyRepo: journeyRepo.NewJourneyRepo(),
+		taskRepo:    taskRepo.NewTaskRepo(),
 	}
 }
 
@@ -91,6 +96,7 @@ func getServices(repos repos) services {
 	embeddingService := chatService.NewEmbeddingService(apiClients.NewHuggingFaceClient())
 	responseService := chatService.NewResponseService(apiClients.NewOpenAiClient())
 	repos.vectorRepo = vectorRepo.NewVectorRepo(projectService)
+	taskService := taskService.NewTaskService(repos.taskRepo)
 
 	return services{
 		projectService:   projectService,
@@ -101,6 +107,6 @@ func getServices(repos repos) services {
 		vectorService:    chatService.NewVectorService(repos.vectorRepo, embeddingService, projectService, responseService),
 		wsService:        chatService.NewWsService(),
 		contactService:   contactService.NewContactService(),
-		journeyService:   journeyService.NewJourneyService(repos.journeyRepo),
+		journeyService:   journeyService.NewJourneyService(repos.journeyRepo, taskService),
 	}
 }

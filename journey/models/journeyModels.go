@@ -17,10 +17,19 @@ type Experience struct {
 	Company          string     `gorm:"not null"`
 	From             time.Time  `gorm:"not null"`
 	To               *time.Time `json:"to,omitempty"`
-	Diploma          string    `json:"diploma,omitempty"`
+	Diploma          string     `json:"diploma,omitempty"`
 	Tasks            []Task     `json:"tasks,omitempty"`
 	ExperienceTypeId uint
 	ExperienceType   ExperienceType
+}
+
+type ExperienceModifyModel struct {
+	Title          string             `json:"title"`
+	Diploma        string             `json:"diploma"`
+	From           time.Time          `json:"from"`
+	To             *time.Time         `json:"to"`
+	Tasks          []TaskDisplay      `json:"tasks"`
+	ExperienceType ExperienceTypeEnum `json:"experienceType"`
 }
 
 type Task struct {
