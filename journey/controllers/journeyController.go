@@ -4,6 +4,7 @@ import (
 	"net/http"
 	journeyModels "portfolioAPI/journey/models"
 	journeyService "portfolioAPI/journey/services"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,4 +39,19 @@ func (con *JourneyController) InsertJourney(context *gin.Context) {
 	}
 
 	context.IndentedJSON(http.StatusOK, insertedJourney)
+}
+
+func (con *JourneyController) DeleteExperience(context *gin.Context) {
+	experienceId, err := strconv.Atoi(context.Param("ID"))
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	if err := con.journeyService.Delete(experienceId); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	context.IndentedJSON(http.StatusOK, gin.H{"message": "Experience deleted successfully"})
 }

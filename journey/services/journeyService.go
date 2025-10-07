@@ -51,3 +51,7 @@ func (service *JourneyService) Insert(journey *journeyModels.JourneyDisplay) (*j
 	service.taskServie.InsertTasks(experience.Tasks)
 	return service.repository.GetJourney(experience.ID)
 }
+
+func (service *JourneyService) Delete(journeyId int)  error {
+  return service.repository.Delete(journeyId)
+}

@@ -1,6 +1,7 @@
 package journeyRepo
 
 import (
+	"errors"
 	"portfolioAPI/database"
 	journeyModels "portfolioAPI/journey/models"
 
@@ -44,7 +45,7 @@ func (repo *JourneyRepo) Insert(experienceToCreate *journeyModels.Experience) (*
 	return *&experienceToCreate, nil
 }
 
-func (repo *JourneyRepo) GetJourney(experienceId uint) (*journeyModels.JourneyDisplay, error) {
+func (repo *JourneyRepo) GetJourney(experienceId int) (*journeyModels.JourneyDisplay, error) {
 	var selectedJourney []journeyModels.ExperienceSelect
 
 	query := repo.db.
@@ -73,7 +74,7 @@ func mapDataRowToExperiences(journeys []journeyModels.ExperienceSelect) []journe
 	experienceMap := make(map[int]*journeyModels.JourneyDisplay)
 
 	for _, experience := range journeys {
-    println(experience.ExperienceId)
+		println(experience.ExperienceId)
 		_, experienceExists := experienceMap[int(experience.ExperienceId)]
 
 		if !experienceExists {
@@ -104,6 +105,20 @@ func mapDataRowToExperiences(journeys []journeyModels.ExperienceSelect) []journe
 
 }
 
-func (repo *JourneyRepo) Delete() {
+func (repo *JourneyRepo) Delete(journeyId int) error {
+	dbJourney := journeyModels.Experience{ID: journeyId}
 
+	existingExperience := repo.db.First(&dbJourney)
+
+	if existingExperience.Error != nil {
+		return errors.New("Experience not found")
+	}
+
+	result := repo.db.Delete(&dbJourney)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }

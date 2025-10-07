@@ -13,6 +13,7 @@ type ExperienceType struct {
 
 type Experience struct {
 	gorm.Model
+  ID               int
 	Title            string     `gorm:"not null"`
 	Company          string     `gorm:"not null"`
 	From             time.Time  `gorm:"not null"`
