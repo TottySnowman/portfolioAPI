@@ -89,7 +89,6 @@ func mapDataRowToExperiences(journeys []journeyModels.ExperienceSelect) []journe
 	experienceMap := make(map[int]*journeyModels.JourneyDisplay)
 
 	for _, experience := range journeys {
-		println(experience.ExperienceId)
 		_, experienceExists := experienceMap[int(experience.ExperienceId)]
 
 		if !experienceExists {
