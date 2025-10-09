@@ -42,7 +42,7 @@ func mapFullJourneyToJourneyResponse(journeyDisplay []journeyModels.JourneyDispl
 }
 
 func (service *JourneyService) Insert(journey *journeyModels.JourneyDisplay) (*journeyModels.JourneyDisplay, error) {
-  mappedExperience := journeyMapping.MapJourneyDisplayModelToJourney(*journey)
+	mappedExperience := journeyMapping.MapJourneyDisplayModelToJourney(*journey)
 	experience, err := service.repository.Insert(&mappedExperience)
 	if err != nil {
 		return nil, err
@@ -52,6 +52,30 @@ func (service *JourneyService) Insert(journey *journeyModels.JourneyDisplay) (*j
 	return service.repository.GetJourney(experience.ID)
 }
 
-func (service *JourneyService) Delete(journeyId int)  error {
-  return service.repository.Delete(journeyId)
+func (service *JourneyService) Delete(journeyId int) error {
+	return service.repository.Delete(journeyId)
+}
+
+func (service *JourneyService) Update(journeyToUpdate *journeyModels.JourneyDisplay, experienceId int) (*journeyModels.JourneyDisplay, error) {
+	experience := journeyMapping.MapJourneyDisplayModelToJourney(*journeyToUpdate)
+	experience.ID = experienceId
+
+	_, error := service.repository.Update(&experience)
+
+	if error != nil {
+		return nil, error
+	}
+
+	service.taskServie.DeleteTasks(experience.ID)
+
+  var tasks []journeyModels.Task
+  for _, task := range experience.Tasks {
+    tasks = append(tasks, journeyModels.Task{
+      Details: task.Details,
+      ExperienceId: uint(experience.ID),
+    })
+  }
+
+	service.taskServie.InsertTasks(tasks)
+	return service.repository.GetJourney(experience.ID)
 }

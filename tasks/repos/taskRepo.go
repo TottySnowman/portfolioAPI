@@ -27,8 +27,8 @@ func (repo *TaskRepo) Insert(task journeyModels.Task) error {
 	return nil
 }
 
-func (repo *TaskRepo) DeleteTasks(journeyId uint) error {
-	result := repo.db.Where("experience_id = ?", journeyId).Delete(&journeyModels.Task{})
+func (repo *TaskRepo) DeleteTasks(journeyId int) error {
+	result := repo.db.Where("ExperienceId = ?", journeyId).Delete(&journeyModels.Task{})
 
 	return result.Error
 }

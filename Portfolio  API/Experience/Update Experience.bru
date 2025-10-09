@@ -1,11 +1,11 @@
 meta {
-  name: Create Experience
+  name: Update Experience
   type: http
-  seq: 1
+  seq: 3
 }
 
-post {
-  url: http://localhost:6001/journey
+put {
+  url: http://localhost:6001/journey/15
   body: json
   auth: bearer
 }
@@ -16,16 +16,16 @@ auth:bearer {
 
 body:json {
   {
-        "title": "New Job whooop whoop test",
+        "title": "Updated new thing",
         "diploma": null,
         "from": "2015-07-01T00:00:00Z",
         "to": null,
         "tasks": [
           {
-            "Details": "Dev things"
+            "Details": "Dev things update"
           },
           {
-            "Details": "More dev things"
+            "Details": "More dev things update"
           }
         ],
         "experienceType": 2

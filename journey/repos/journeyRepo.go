@@ -25,7 +25,9 @@ func (repo *JourneyRepo) GetFullJourney() []journeyModels.JourneyDisplay {
 		Model(&journeyModels.Experience{}).
 		Select("Experience.ID as ExperienceId, Title, Company, `From`, `To`, Diploma, et.Name, t.Details, Experience.ExperienceTypeId").
 		Joins("INNER JOIN ExperienceType as et on et.ID = Experience.ExperienceTypeId").
-		Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID")
+		Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID").
+    Where("t.DeletedAt IS NULL").
+    Order("Experience.From")
 
 	result := query.Find(&selectedJourney)
 	if result.Error != nil {
@@ -66,8 +68,21 @@ func (repo *JourneyRepo) GetJourney(experienceId int) (*journeyModels.JourneyDis
 	return &experiences[0], nil
 }
 
-func (repo *JourneyRepo) Update() *journeyModels.Experience {
-	return nil
+func (repo *JourneyRepo) Update(journeyToUpdate *journeyModels.Experience) (*journeyModels.Experience, error) {
+  	var dbJourney = journeyModels.Experience{ID: journeyToUpdate.ID}
+	existingProject := repo.db.First(&dbJourney)
+
+	if existingProject.Error != nil {
+		return nil, errors.New("Experience not found")
+	}
+
+	updatedJourney := repo.db.Model(&dbJourney).Select("*").Omit("CreatedAt").Updates(journeyToUpdate)
+
+	if updatedJourney.Error != nil {
+		return nil, errors.New(updatedJourney.Error.Error())
+	}
+
+	return *&journeyToUpdate, nil
 }
 
 func mapDataRowToExperiences(journeys []journeyModels.ExperienceSelect) []journeyModels.JourneyDisplay {

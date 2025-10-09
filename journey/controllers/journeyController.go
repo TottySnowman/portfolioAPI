@@ -55,3 +55,20 @@ func (con *JourneyController) DeleteExperience(context *gin.Context) {
 
 	context.IndentedJSON(http.StatusOK, gin.H{"message": "Experience deleted successfully"})
 }
+
+func (con *JourneyController) UpdateExperience(context *gin.Context) {
+	experienceId, err := strconv.Atoi(context.Param("ID"))
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+		return
+	}
+
+	var experience *journeyModels.JourneyDisplay
+	if err := context.ShouldBindJSON(&experience); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
+
+	updatedProject, err := con.journeyService.Update(experience, experienceId)
+	context.IndentedJSON(http.StatusOK, updatedProject)
+}

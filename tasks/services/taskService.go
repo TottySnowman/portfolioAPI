@@ -26,6 +26,6 @@ func(taskService *TaskService) InsertTasks(tasks []journeyModels.Task) error{
   return nil
 }
 
-func(taskService *TaskService) DeleteTasks(experienceId uint) error{
-  return taskService.DeleteTasks(experienceId)
+func(taskService *TaskService) DeleteTasks(experienceId int) error{
+  return taskService.repo.DeleteTasks(experienceId)
 }
