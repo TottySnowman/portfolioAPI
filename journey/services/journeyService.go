@@ -19,8 +19,8 @@ func NewJourneyService(journeyRepo *journeyRepo.JourneyRepo, taskService *taskSe
 	}
 }
 
-func (service *JourneyService) GetFullJourney() journeyModels.JourneyResponse {
-	fullJourney := service.repository.GetFullJourney()
+func (service *JourneyService) GetFullJourney(languageCode string) journeyModels.JourneyResponse {
+	fullJourney := service.repository.GetFullJourney(languageCode)
 
 	return mapFullJourneyToJourneyResponse(fullJourney)
 }

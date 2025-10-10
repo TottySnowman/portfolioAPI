@@ -19,6 +19,7 @@ type Experience struct {
 	From             time.Time  `gorm:"not null"`
 	To               *time.Time `json:"to,omitempty"`
 	Diploma          string     `json:"diploma,omitempty"`
+  LanguageCode     string     `gorm:"not null;default:de-CH"`
 	Tasks            []Task     `json:"tasks,omitempty"`
 	ExperienceTypeId uint
 	ExperienceType   ExperienceType

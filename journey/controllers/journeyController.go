@@ -20,7 +20,9 @@ func NewJourneyController(journeyService *journeyService.JourneyService) *Journe
 }
 
 func (con *JourneyController) GetFullJourney(context *gin.Context) {
-	fullJourney := con.journeyService.GetFullJourney()
+  acceptLanguage := context.GetHeader("Accept-Language")
+
+	fullJourney := con.journeyService.GetFullJourney(acceptLanguage)
 	context.IndentedJSON(http.StatusOK, fullJourney)
 }
 

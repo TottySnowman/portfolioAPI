@@ -18,7 +18,7 @@ func NewJourneyRepo() *JourneyRepo {
 	}
 }
 
-func (repo *JourneyRepo) GetFullJourney() []journeyModels.JourneyDisplay {
+func (repo *JourneyRepo) GetFullJourney(languageCode string) []journeyModels.JourneyDisplay {
 	var selectedJourney []journeyModels.ExperienceSelect
 
 	query := repo.db.
@@ -27,6 +27,7 @@ func (repo *JourneyRepo) GetFullJourney() []journeyModels.JourneyDisplay {
 		Joins("INNER JOIN ExperienceType as et on et.ID = Experience.ExperienceTypeId").
 		Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID").
     Where("t.DeletedAt IS NULL").
+    Where("Experience.LanguageCode = ?", languageCode).
     Order("Experience.From")
 
 	result := query.Find(&selectedJourney)
