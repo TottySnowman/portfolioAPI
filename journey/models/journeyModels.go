@@ -13,13 +13,13 @@ type ExperienceType struct {
 
 type Experience struct {
 	gorm.Model
-  ID               int
+	ID               int
 	Title            string     `gorm:"not null"`
 	Company          string     `gorm:"not null"`
 	From             time.Time  `gorm:"not null"`
 	To               *time.Time `json:"to,omitempty"`
 	Diploma          string     `json:"diploma,omitempty"`
-  LanguageCode     string     `gorm:"not null;default:de-CH"`
+	LanguageCode     string     `gorm:"not null;default:de-CH"`
 	Tasks            []Task     `json:"tasks,omitempty"`
 	ExperienceTypeId uint
 	ExperienceType   ExperienceType
@@ -50,6 +50,7 @@ type ExperienceSelect struct {
 	Diploma          string
 	Details          string
 	ExperienceTypeId uint
+	LanguageCode          string
 }
 
 type ExperienceTypeEnum int
@@ -67,6 +68,7 @@ type JourneyDisplay struct {
 	To             *time.Time         `json:"to"`
 	Tasks          []TaskDisplay      `json:"tasks"`
 	ExperienceType ExperienceTypeEnum `json:"experienceType"`
+	LanguageCode   string             `json:"languageCode"`
 }
 
 type TaskDisplay struct {
@@ -76,4 +78,19 @@ type TaskDisplay struct {
 type JourneyResponse struct {
 	Educations []JourneyDisplay `json:"educations"`
 	Work       []JourneyDisplay `json:"work"`
+}
+
+type JourneyUpsertModel struct {
+	To                  *time.Time                `json:"to"`
+	From                time.Time                 `json:"from"`
+	ExperienceType      ExperienceTypeEnum        `json:"experienceType"`
+	JourneyTransaltions []JourneyTranslationModel `json:"journeyTranslations"`
+}
+
+type JourneyTranslationModel struct {
+	Id           int           `json:"id"`
+	Title        string        `json:"title"`
+	Diploma      string        `json:"diploma"`
+	Tasks        []TaskDisplay `json:"tasks"`
+	LanguageCode string        `json:"languageCode"`
 }

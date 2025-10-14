@@ -11,8 +11,7 @@ func RegisterJourneyRoutes(router *gin.Engine, journeyController *journeyControl
 	{
 		routerGroup.GET("", journeyController.GetFullJourney)
 		routerGroup.POST("", middleware.JWTMiddleware(), journeyController.InsertJourney)
-    routerGroup.DELETE("/:ID", middleware.JWTMiddleware(), journeyController.DeleteExperience)
-    routerGroup.PUT("/:ID", middleware.JWTMiddleware(), journeyController.UpdateExperience)
+		routerGroup.DELETE("/:ID", middleware.JWTMiddleware(), journeyController.DeleteExperience)
+		routerGroup.PUT("/:ID", middleware.JWTMiddleware(), journeyController.UpdateExperience)
 	}
-
 }

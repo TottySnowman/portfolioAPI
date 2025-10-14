@@ -20,27 +20,28 @@ func NewJourneyController(journeyService *journeyService.JourneyService) *Journe
 }
 
 func (con *JourneyController) GetFullJourney(context *gin.Context) {
-  acceptLanguage := context.GetHeader("Accept-Language")
+	acceptLanguage := context.GetHeader("Accept-Language")
 
 	fullJourney := con.journeyService.GetFullJourney(acceptLanguage)
 	context.IndentedJSON(http.StatusOK, fullJourney)
 }
 
 func (con *JourneyController) InsertJourney(context *gin.Context) {
-	var experience *journeyModels.JourneyDisplay
+	var experience *journeyModels.JourneyUpsertModel
 
 	if err := context.ShouldBindJSON(&experience); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
+	print(experience.ExperienceType)
 
-	insertedJourney, err := con.journeyService.Insert(experience)
+	err := con.journeyService.Insert(experience)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, insertedJourney)
+	context.Status(http.StatusCreated)
 }
 
 func (con *JourneyController) DeleteExperience(context *gin.Context) {
@@ -59,18 +60,23 @@ func (con *JourneyController) DeleteExperience(context *gin.Context) {
 }
 
 func (con *JourneyController) UpdateExperience(context *gin.Context) {
+	var experience *journeyModels.JourneyDisplay
+
 	experienceId, err := strconv.Atoi(context.Param("ID"))
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
-	var experience *journeyModels.JourneyDisplay
 	if err := context.ShouldBindJSON(&experience); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
 	updatedProject, err := con.journeyService.Update(experience, experienceId)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
+		return
+	}
 	context.IndentedJSON(http.StatusOK, updatedProject)
 }

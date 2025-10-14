@@ -41,15 +41,19 @@ func mapFullJourneyToJourneyResponse(journeyDisplay []journeyModels.JourneyDispl
 	return journeyResponse
 }
 
-func (service *JourneyService) Insert(journey *journeyModels.JourneyDisplay) (*journeyModels.JourneyDisplay, error) {
-	mappedExperience := journeyMapping.MapJourneyDisplayModelToJourney(*journey)
-	experience, err := service.repository.Insert(&mappedExperience)
-	if err != nil {
-		return nil, err
+func (service *JourneyService) Insert(journeysToInsert *journeyModels.JourneyUpsertModel) error {
+	mappedExperiences := journeyMapping.MapJourneyDisplayModelToJourney(journeysToInsert)
+
+	for _, experience := range mappedExperiences {
+		_, err := service.repository.Insert(&experience)
+		if err != nil {
+			return err
+		}
+
+		service.taskServie.InsertTasks(experience.Tasks)
 	}
 
-	service.taskServie.InsertTasks(experience.Tasks)
-	return service.repository.GetJourney(experience.ID)
+	return nil
 }
 
 func (service *JourneyService) Delete(journeyId int) error {
@@ -57,8 +61,12 @@ func (service *JourneyService) Delete(journeyId int) error {
 }
 
 func (service *JourneyService) Update(journeyToUpdate *journeyModels.JourneyDisplay, experienceId int) (*journeyModels.JourneyDisplay, error) {
-	experience := journeyMapping.MapJourneyDisplayModelToJourney(*journeyToUpdate)
-	experience.ID = experienceId
+	experience := journeyMapping.MapJourneyDisplayModelToJourneyWithId(journeyToUpdate, experienceId)
+	existingExperience, err := service.repository.GetJourney(experienceId)
+	if err != nil {
+		return nil, err
+	}
+	experience.LanguageCode = existingExperience.LanguageCode
 
 	_, error := service.repository.Update(&experience)
 
@@ -67,15 +75,7 @@ func (service *JourneyService) Update(journeyToUpdate *journeyModels.JourneyDisp
 	}
 
 	service.taskServie.DeleteTasks(experience.ID)
+	service.taskServie.InsertTasks(experience.Tasks)
 
-  var tasks []journeyModels.Task
-  for _, task := range experience.Tasks {
-    tasks = append(tasks, journeyModels.Task{
-      Details: task.Details,
-      ExperienceId: uint(experience.ID),
-    })
-  }
-
-	service.taskServie.InsertTasks(tasks)
-	return service.repository.GetJourney(experience.ID)
+	return service.repository.GetJourney(experienceId)
 }

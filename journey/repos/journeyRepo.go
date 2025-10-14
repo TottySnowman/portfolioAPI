@@ -26,9 +26,9 @@ func (repo *JourneyRepo) GetFullJourney(languageCode string) []journeyModels.Jou
 		Select("Experience.ID as ExperienceId, Title, Company, `From`, `To`, Diploma, et.Name, t.Details, Experience.ExperienceTypeId").
 		Joins("INNER JOIN ExperienceType as et on et.ID = Experience.ExperienceTypeId").
 		Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID").
-    Where("t.DeletedAt IS NULL").
-    Where("Experience.LanguageCode = ?", languageCode).
-    Order("Experience.From")
+		Where("t.DeletedAt IS NULL").
+		Where("Experience.LanguageCode = ?", languageCode).
+		Order("Experience.From")
 
 	result := query.Find(&selectedJourney)
 	if result.Error != nil {
@@ -53,10 +53,11 @@ func (repo *JourneyRepo) GetJourney(experienceId int) (*journeyModels.JourneyDis
 
 	query := repo.db.
 		Model(&journeyModels.Experience{}).
-		Select("Experience.ID as ExperienceId, Title, Company, `From`, `To`, Diploma, et.Name, t.Details, Experience.ExperienceTypeId").
+		Select("Experience.ID as ExperienceId, Title, Company, `From`, `To`, Diploma, et.Name, t.Details, Experience.ExperienceTypeId, Experience.LanguageCode").
 		Joins("INNER JOIN ExperienceType as et on et.ID = Experience.ExperienceTypeId").
 		Joins("LEFT JOIN Task as t on t.ExperienceId = Experience.ID").
-		Where("Experience.ID = ?", experienceId)
+		Where("Experience.ID = ?", experienceId).
+		Where("t.DeletedAt IS NULL")
 
 	result := query.Find(&selectedJourney)
 
@@ -70,7 +71,7 @@ func (repo *JourneyRepo) GetJourney(experienceId int) (*journeyModels.JourneyDis
 }
 
 func (repo *JourneyRepo) Update(journeyToUpdate *journeyModels.Experience) (*journeyModels.Experience, error) {
-  	var dbJourney = journeyModels.Experience{ID: journeyToUpdate.ID}
+	var dbJourney = journeyModels.Experience{ID: journeyToUpdate.ID}
 	existingProject := repo.db.First(&dbJourney)
 
 	if existingProject.Error != nil {
@@ -100,6 +101,7 @@ func mapDataRowToExperiences(journeys []journeyModels.ExperienceSelect) []journe
 				From:           experience.From,
 				To:             experience.To,
 				ExperienceType: journeyModels.ExperienceTypeEnum(experience.ExperienceTypeId),
+				LanguageCode:   experience.LanguageCode,
 			}
 		}
 
