@@ -10,6 +10,9 @@ import (
 	fileController "portfolioAPI/fileUpload/controllers"
 	fileHandler "portfolioAPI/fileUpload/handler"
 	fileServices "portfolioAPI/fileUpload/services"
+	journeyController "portfolioAPI/journey/controllers"
+	journeyRepo "portfolioAPI/journey/repos"
+	journeyService "portfolioAPI/journey/services"
 	knowledgeController "portfolioAPI/knowledge/controllers"
 	projectController "portfolioAPI/project/controllers"
 	project_repo "portfolioAPI/project/repos"
@@ -20,6 +23,8 @@ import (
 	tagController "portfolioAPI/tag/controllers"
 	tagRepo "portfolioAPI/tag/repos"
 	tagService "portfolioAPI/tag/services"
+	taskRepo "portfolioAPI/tasks/repos"
+	taskService "portfolioAPI/tasks/services"
 )
 
 type AppContainer struct {
@@ -30,6 +35,7 @@ type AppContainer struct {
 	ChatController      *chatController.ChatController
 	KnowledgeController *knowledgeController.KnowledgeController
 	ContactController   *contactController.ContactController
+	JourneyController   *journeyController.JourneyController
 }
 
 type repos struct {
@@ -37,6 +43,8 @@ type repos struct {
 	tagRepo     *tagRepo.TagRepo
 	statusRepo  *statusRepo.StatusRepo
 	vectorRepo  *vectorRepo.VectorRepo
+	journeyRepo *journeyRepo.JourneyRepo
+	taskRepo    *taskRepo.TaskRepo
 }
 
 type services struct {
@@ -48,6 +56,8 @@ type services struct {
 	vectorService    *chatService.VectorService
 	wsService        *chatService.WsService
 	contactService   *contactService.ContactService
+	journeyService   *journeyService.JourneyService
+	taskService      *taskService.TaskService
 }
 
 func NewAppContainer() *AppContainer {
@@ -62,6 +72,7 @@ func NewAppContainer() *AppContainer {
 		ChatController:      chatController.NewChatController(services.embeddingService, services.vectorService, services.wsService),
 		KnowledgeController: knowledgeController.NewKnowledgeController(services.vectorService, services.embeddingService),
 		ContactController:   contactController.NewContactController(services.contactService),
+		JourneyController:   journeyController.NewJourneyController(services.journeyService),
 	}
 }
 
@@ -70,6 +81,8 @@ func getRepos() repos {
 		projectRepo: project_repo.NewProjectRepo(),
 		tagRepo:     tagRepo.NewTagRepo(),
 		statusRepo:  statusRepo.NewStatusRepo(),
+		journeyRepo: journeyRepo.NewJourneyRepo(),
+		taskRepo:    taskRepo.NewTaskRepo(),
 	}
 }
 
@@ -83,6 +96,7 @@ func getServices(repos repos) services {
 	embeddingService := chatService.NewEmbeddingService(apiClients.NewHuggingFaceClient())
 	responseService := chatService.NewResponseService(apiClients.NewOpenAiClient())
 	repos.vectorRepo = vectorRepo.NewVectorRepo(projectService)
+	taskService := taskService.NewTaskService(repos.taskRepo)
 
 	return services{
 		projectService:   projectService,
@@ -93,5 +107,6 @@ func getServices(repos repos) services {
 		vectorService:    chatService.NewVectorService(repos.vectorRepo, embeddingService, projectService, responseService),
 		wsService:        chatService.NewWsService(),
 		contactService:   contactService.NewContactService(),
+		journeyService:   journeyService.NewJourneyService(repos.journeyRepo, taskService),
 	}
 }
