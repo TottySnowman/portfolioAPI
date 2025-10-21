@@ -1,11 +1,11 @@
 package projectController
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	projectModel "portfolioAPI/project/models"
 	projectService "portfolioAPI/project/services"
 	"strconv"
-	"github.com/gin-gonic/gin"
 )
 
 type ProjectController struct {
@@ -39,13 +39,22 @@ func (con *ProjectController) GetAllProjectsIncludeHidden(context *gin.Context) 
 }
 
 func (con *ProjectController) InsertProject(context *gin.Context) {
+
 	var project *projectModel.ProjectDisplay
+
+	acceptLanguage := context.GetHeader("Accept-Language")
+
+	if acceptLanguage == "" {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "No language found"})
+		return
+	}
+
 	if err := context.ShouldBindJSON(&project); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
-	createdProject, err := con.projectService.Insert(*project)
+	createdProject, err := con.projectService.Insert(*project, acceptLanguage)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
@@ -56,13 +65,18 @@ func (con *ProjectController) InsertProject(context *gin.Context) {
 
 func (con *ProjectController) UpdateProject(context *gin.Context) {
 	var project *projectModel.ProjectDisplay
+	acceptLanguage := context.GetHeader("Accept-Language")
+	if acceptLanguage == "" {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "No language found"})
+		return
+	}
 
 	if err := context.ShouldBindJSON(&project); err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
 
-	updatedProject, err := con.projectService.Update(*project)
+	updatedProject, err := con.projectService.Update(*project, acceptLanguage)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return

@@ -22,6 +22,11 @@ func NewJourneyController(journeyService *journeyService.JourneyService) *Journe
 func (con *JourneyController) GetFullJourney(context *gin.Context) {
 	acceptLanguage := context.GetHeader("Accept-Language")
 
+	if acceptLanguage == "" {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "No language found"})
+		return
+	}
+
 	fullJourney := con.journeyService.GetFullJourney(acceptLanguage)
 	context.IndentedJSON(http.StatusOK, fullJourney)
 }
@@ -33,7 +38,6 @@ func (con *JourneyController) InsertJourney(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "invalid"})
 		return
 	}
-	print(experience.ExperienceType)
 
 	err := con.journeyService.Insert(experience)
 	if err != nil {
