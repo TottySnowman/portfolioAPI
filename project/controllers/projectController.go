@@ -19,10 +19,12 @@ func NewProjectController(projectService *projectService.ProjectService) *Projec
 }
 
 func (con *ProjectController) GetAllProjects(context *gin.Context) {
-  acceptLanguage := context.GetHeader("Accept-Language")
-  if(acceptLanguage == ""){
-    acceptLanguage = "en-US"
-  }
+	acceptLanguage := context.GetHeader("Accept-Language")
+
+	if acceptLanguage == "" {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "No language found"})
+		return
+	}
 
 	projects := con.projectService.GetAllProjects(false, acceptLanguage)
 	if projects == nil {
