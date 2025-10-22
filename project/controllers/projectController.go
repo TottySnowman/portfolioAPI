@@ -19,7 +19,12 @@ func NewProjectController(projectService *projectService.ProjectService) *Projec
 }
 
 func (con *ProjectController) GetAllProjects(context *gin.Context) {
-	projects := con.projectService.GetAllProjects(false)
+  acceptLanguage := context.GetHeader("Accept-Language")
+  if(acceptLanguage == ""){
+    acceptLanguage = "en-US"
+  }
+
+	projects := con.projectService.GetAllProjects(false, acceptLanguage)
 	if projects == nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "No projects found"})
 		return
@@ -29,7 +34,7 @@ func (con *ProjectController) GetAllProjects(context *gin.Context) {
 }
 
 func (con *ProjectController) GetAllProjectsIncludeHidden(context *gin.Context) {
-	projects := con.projectService.GetAllProjects(true)
+	projects := con.projectService.GetAllProjects(true, "")
 	if projects == nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "No projects found"})
 		return
