@@ -79,7 +79,7 @@ func (service *VectorService) ResetDatabase(syncModel *knowledgeModels.SyncModel
 
 func (service *VectorService) InsertProjectsAsync() {
 	go func() {
-		projects := service.projectService.GetAllProjects(false)
+		projects := service.projectService.GetAllProjects(false, "")
 		for _, project := range projects {
 			go service.upsertProject(project)
 		}

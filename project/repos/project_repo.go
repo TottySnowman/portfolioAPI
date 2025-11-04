@@ -23,7 +23,7 @@ func NewProjectRepo() *Project_Repo {
 	}
 }
 
-func (repo *Project_Repo) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
+func (repo *Project_Repo) GetAllProjects(includeHidden bool, languageCode string) []projectModel.ProjectDisplay {
 	var selectedProjects []projectModel.ProjectDataSelect
 
 	query := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate, p.Hidden").Table("Project as p").
@@ -36,6 +36,9 @@ func (repo *Project_Repo) GetAllProjects(includeHidden bool) []projectModel.Proj
 		query = query.Where("Hidden = false")
 	}
 
+  if(languageCode != ""){
+		query = query.Where("LanguageCode = ?", languageCode)
+  }
 	result := query.Find(&selectedProjects)
 
 	if result.Error != nil {

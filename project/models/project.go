@@ -19,7 +19,8 @@ type Project struct {
 	Hidden          bool           `gorm:"not null"`                                                                  // Hidden status (boolean)
 	ProjectStatusID uint           `gorm:"not null"`                                                                  // Foreign key field
 	ProjectStatus   ProjectStatus  `gorm:"foreignkey:ProjectStatusID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` // Foreign key constraint
-	Tags            []tagModel.Tag `gorm:"many2many:Project_Tags"`                                                    // Many-to-many relationship with Tag
+	Tags            []tagModel.Tag `gorm:"many2many:Project_Tags"`                                                    // Many to many
+	LanguageCode    string         `gorm:"not null;default:de-CH"`
 }
 
 type ProjectStatus struct {
