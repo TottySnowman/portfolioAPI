@@ -30,6 +30,13 @@ func (controller *TagController) GetAllTags(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, existingTags)
 }
 
+
+func (controller *TagController) GetTechStack(context *gin.Context) {
+	techStack := controller.service.GetTechStack()
+
+	context.IndentedJSON(http.StatusOK, techStack)
+}
+
 func (con *TagController) InsertTag(context *gin.Context) {
 	var tag *tagModel.Tag
 

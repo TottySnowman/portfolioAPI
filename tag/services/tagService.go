@@ -18,6 +18,33 @@ func NewTagService(tagRepo *tagRepo.TagRepo) *TagService {
 func (service *TagService) GetAllTags() []tagModel.JsonTag {
 	return service.repo.GetAllTags()
 }
+
+func (service *TagService) GetTechStack() tagModel.TechstackResponse {
+	var backendItems []tagModel.TechstackItemResponse
+	var frontendItems []tagModel.TechstackItemResponse
+
+	techStackItems := service.repo.GetTechStack()
+	for _, item := range techStackItems {
+		if item.IsBackend {
+			backendItems = append(backendItems, service.mapTechstackItemToTechStackItemResponse(item))
+			continue
+		}
+		frontendItems = append(frontendItems, service.mapTechstackItemToTechStackItemResponse(item))
+	}
+
+	return tagModel.TechstackResponse{
+		Backend:  backendItems,
+		Frontend: frontendItems,
+	}
+}
+
+func (service *TagService) mapTechstackItemToTechStackItemResponse(techStackItem tagModel.TechstackItem) tagModel.TechstackItemResponse {
+	return tagModel.TechstackItemResponse{
+		DisplayName: techStackItem.Tag,
+		IconName:    techStackItem.Icon,
+	}
+}
+
 func (service *TagService) Insert(tag tagModel.Tag) (tagModel.JsonTag, error) {
 	createdTag, err := service.repo.Insert(&tag)
 	convertedTag := service.ConvertTagToDisplayTag(createdTag)

@@ -15,4 +15,6 @@ func RegisterTagRoutes(router *gin.Engine, tagController *tagController.TagContr
 		routerGroup.PUT("", middleware.JWTMiddleware(), tagController.UpdateTag)
 		routerGroup.DELETE("/:ID", middleware.JWTMiddleware(), tagController.DeleteTag)
 	}
+
+	router.GET("/tech-stack", tagController.GetTechStack)
 }
