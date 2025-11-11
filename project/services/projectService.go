@@ -53,8 +53,7 @@ func (service *ProjectService) GetAllProjects(includeHidden bool, languageCode s
 }
 
 func (service *ProjectService) Insert(project projectModel.ProjectDisplay, languageCode string) (*projectModel.ProjectDisplay, error) {
-	databaseProject := GetDbProjectFromDisplay(project)
-	databaseProject.LanguageCode = languageCode
+	databaseProject := GetDbProjectFromDisplay(project, languageCode)
 	_, insertError := service.repository.Insert(&databaseProject)
 
 	if insertError != nil {
@@ -76,8 +75,7 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay, langu
 }
 
 func (service *ProjectService) Update(project projectModel.ProjectDisplay, languageCode string) (*projectModel.ProjectDisplay, error) {
-	databaseProject := GetDbProjectFromDisplay(project)
-	databaseProject.LanguageCode = languageCode
+	databaseProject := GetDbProjectFromDisplay(project, languageCode)
 	_, error := service.repository.Update(&databaseProject)
 
 	if error != nil {
@@ -155,7 +153,7 @@ func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel
 	return convertedTags
 }
 
-func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.Project {
+func GetDbProjectFromDisplay(display projectModel.ProjectDisplay, languageCode string) projectModel.Project {
 	return projectModel.Project{
 		ID:              display.ProjectID,
 		Name:            display.Name,
@@ -166,5 +164,6 @@ func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.P
 		GithubLink:      display.Github_Link,
 		ProjectStatusID: uint(display.Status.StatusID),
 		LogoPath:        display.Logo_Path,
+		LanguageCode:    display.LanguageCode,
 	}
 }

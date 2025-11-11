@@ -43,6 +43,7 @@ type ProjectDataSelect struct {
 	TagId      int
 	DevDate    time.Time
 	Hidden     bool
+	LanguageCode     string
 }
 
 type ProjectDisplay struct {
@@ -56,4 +57,5 @@ type ProjectDisplay struct {
 	Tags        []tagModel.JsonTag
 	DevDate     time.Time
 	Hidden      bool
+	LanguageCode      string
 }
