@@ -6,9 +6,6 @@ FROM golang:1.24
 # Set the working directory inside the container
 WORKDIR /app
 
-# Add air for hotreloading
-RUN go install github.com/air-verse/air@latest
-
 # Copy the Go module files and install dependencies
 COPY go.mod go.sum ./
 RUN go mod download
@@ -23,5 +20,4 @@ RUN go build -o main .
 EXPOSE 6001
 
 # Set the default command for Docker, to either reset Docker or start the app
-CMD ["air"]
-
+CMD ["./main"]
