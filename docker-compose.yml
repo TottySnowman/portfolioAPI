@@ -1,7 +1,7 @@
 services:
   # MySQL Service
   mysql:
-    image: mysql:8.0
+    image: reg.paul-wortmann.me/portfolio_api/mysql:latest
     container_name: portfolio-db
     restart: always
     environment:
@@ -16,23 +16,20 @@ services:
 
   # Go application
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: reg.paul-wortmann.me/portfolio_api/app:latest  # Use the pre-built image
     container_name: go-app
     restart: always
-    volumes:
-      - .:/app
-    command: ["air"]
     depends_on:
       - mysql
       - qdrant
     ports:
       - "6001:6001"
+    env_file: 
+      - .env
 
   # Qdrant Service
   qdrant:
-    image: qdrant/qdrant:latest
+    image: reg.paul-wortmann.me/portfolio_api/qdrant:latest
     restart: always
     container_name: qdrant
     ports:
@@ -40,7 +37,12 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_data_volume:/qdrant/storage
-
+    configs:
+      - source: qdrant_config
+configs:
+  qdrant_config:
+    content: |
+      log_level: INFO
 volumes:
   portfolioData:
   qdrant_data_volume:
