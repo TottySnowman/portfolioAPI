@@ -31,7 +31,8 @@ func (con *KnowledgeController) UpsertText(ctx *gin.Context) {
 	vector, err := con.embeddingService.GetVectorByText(prompt.Prompt)
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+    print(err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": "message could not be loaded, try again"})
 		return
 	}
 
