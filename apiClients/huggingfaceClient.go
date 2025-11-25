@@ -39,7 +39,7 @@ func (client *HuggingFaceClient) GetVectorByText(text string) (chatModel.Feature
 }
 
 func createRequest(text string) (*http.Request, error) {
-	hf_inferenceUrl := "https://api-inference.huggingface.co/models/BAAI/bge-small-en-v1.5"
+	hf_inferenceUrl := "https://router.huggingface.co/hf-inference/models/BAAI/bge-small-en-v1.5/pipeline/feature-extraction"
 	payload := []byte(fmt.Sprintf(`{
 		"inputs": "%s"
 	}`, text))
