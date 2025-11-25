@@ -2,8 +2,8 @@ package project_repo
 
 import (
 	"errors"
+	"fmt"
 	"os"
-  "fmt"
 	"portfolioAPI/database"
 	projectModel "portfolioAPI/project/models"
 	statusModels "portfolioAPI/status/models"
@@ -23,10 +23,10 @@ func NewProjectRepo() *Project_Repo {
 	}
 }
 
-func (repo *Project_Repo) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
+func (repo *Project_Repo) GetAllProjects(includeHidden bool, languageCode string) []projectModel.ProjectDisplay {
 	var selectedProjects []projectModel.ProjectDataSelect
 
-	query := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate, p.Hidden").Table("Project as p").
+	query := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate, p.Hidden, p.LanguageCode").Table("Project as p").
 		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
 		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
 		Joins("inner join Tag as t ON t.ID = pt.TagID").
@@ -36,6 +36,9 @@ func (repo *Project_Repo) GetAllProjects(includeHidden bool) []projectModel.Proj
 		query = query.Where("Hidden = false")
 	}
 
+	if languageCode != "" {
+		query = query.Where("LanguageCode = ?", languageCode)
+	}
 	result := query.Find(&selectedProjects)
 
 	if result.Error != nil {
@@ -52,7 +55,7 @@ func (repo *Project_Repo) GetAllProjects(includeHidden bool) []projectModel.Proj
 func (repo *Project_Repo) GetProjectById(projectId int, includeHidden bool) (*projectModel.ProjectDisplay, error) {
 	var selectedProjects []projectModel.ProjectDataSelect
 
-	query := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate, p.Hidden").Table("Project as p").
+	query := repo.db.Select("ps.Status, ps.ID as StatusID, p.ID as ProjectID, p.Name, p.About, p.GithubLink, p.DemoLink, p.LogoPath, t.Tag, t.Icon as TagIcon, t.ID as TagId, p.DevDate, p.Hidden, p.LanguageCode").Table("Project as p").
 		Joins("Inner join ProjectStatus as ps ON ps.ID = p.ProjectStatusID").
 		Joins("inner join Project_Tags as pt ON p.ID = pt.ProjectID").
 		Joins("inner join Tag as t ON t.ID = pt.TagID").
@@ -88,12 +91,13 @@ func mapDataRowsToProjects(projects []projectModel.ProjectDataSelect) []projectM
 					StatusID: project.StatusID,
 					Status:   project.Status,
 				},
-				Github_Link: project.GithubLink,
-				Demo_Link:   project.DemoLink,
-				Logo_Path:   apiURL + project.LogoPath,
-				Tags:        []tagModel.JsonTag{},
-				DevDate:     project.DevDate,
-				Hidden:      project.Hidden,
+				Github_Link:  project.GithubLink,
+				Demo_Link:    project.DemoLink,
+				Logo_Path:    apiURL + project.LogoPath,
+				Tags:         []tagModel.JsonTag{},
+				DevDate:      project.DevDate,
+				Hidden:       project.Hidden,
+				LanguageCode: project.LanguageCode,
 			}
 		}
 
@@ -135,7 +139,7 @@ func (repo *Project_Repo) Update(projectToUpdate *projectModel.Project) (*projec
 		return nil, errors.New("Project not found")
 	}
 
-  projectToUpdate.LogoPath = dbProject.LogoPath
+	projectToUpdate.LogoPath = dbProject.LogoPath
 	updateProject := repo.db.Model(&dbProject).Select("*").Omit("CreatedAt").Updates(projectToUpdate)
 
 	if updateProject.Error != nil {

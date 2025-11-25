@@ -48,12 +48,12 @@ func (service *ProjectService) notifyProjectDeleted(projectId int) {
 	}
 }
 
-func (service *ProjectService) GetAllProjects(includeHidden bool) []projectModel.ProjectDisplay {
-	return service.repository.GetAllProjects(includeHidden)
+func (service *ProjectService) GetAllProjects(includeHidden bool, languageCode string) []projectModel.ProjectDisplay {
+	return service.repository.GetAllProjects(includeHidden, languageCode)
 }
 
-func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
-	databaseProject := GetDbProjectFromDisplay(project)
+func (service *ProjectService) Insert(project projectModel.ProjectDisplay, languageCode string) (*projectModel.ProjectDisplay, error) {
+	databaseProject := GetDbProjectFromDisplay(project, languageCode)
 	_, insertError := service.repository.Insert(&databaseProject)
 
 	if insertError != nil {
@@ -74,8 +74,8 @@ func (service *ProjectService) Insert(project projectModel.ProjectDisplay) (*pro
 	return mappedProject, nil
 }
 
-func (service *ProjectService) Update(project projectModel.ProjectDisplay) (*projectModel.ProjectDisplay, error) {
-	databaseProject := GetDbProjectFromDisplay(project)
+func (service *ProjectService) Update(project projectModel.ProjectDisplay, languageCode string) (*projectModel.ProjectDisplay, error) {
+	databaseProject := GetDbProjectFromDisplay(project, languageCode)
 	_, error := service.repository.Update(&databaseProject)
 
 	if error != nil {
@@ -153,7 +153,7 @@ func (service *ProjectService) convertDisplayTagsToDbTags(projectTags []tagModel
 	return convertedTags
 }
 
-func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.Project {
+func GetDbProjectFromDisplay(display projectModel.ProjectDisplay, languageCode string) projectModel.Project {
 	return projectModel.Project{
 		ID:              display.ProjectID,
 		Name:            display.Name,
@@ -164,5 +164,6 @@ func GetDbProjectFromDisplay(display projectModel.ProjectDisplay) projectModel.P
 		GithubLink:      display.Github_Link,
 		ProjectStatusID: uint(display.Status.StatusID),
 		LogoPath:        display.Logo_Path,
+		LanguageCode:    display.LanguageCode,
 	}
 }

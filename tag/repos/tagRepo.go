@@ -38,6 +38,28 @@ func (repo *TagRepo) GetAllTags() []tagModel.JsonTag {
 	return jsonTags
 }
 
+
+func (repo *TagRepo) GetTechStack() []tagModel.TechstackItem {
+	var selectedTags []tagModel.Tag
+	result := repo.db.Find(&selectedTags)
+
+	if result.Error != nil {
+		return nil
+	}
+
+	var techStackItems  []tagModel.TechstackItem
+	for _, tag := range selectedTags {
+		techStackItems = append(techStackItems, tagModel.TechstackItem{
+			TagId: int(tag.ID),
+			Tag:   tag.Tag,
+			Icon:  tag.Icon,
+      IsBackend: tag.IsBackend,
+		})
+	}
+
+	return techStackItems
+}
+
 func (repo *TagRepo) Insert(tagToCreate *tagModel.Tag) (*tagModel.Tag, error) {
 	result := repo.db.Create(&tagToCreate)
 

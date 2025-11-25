@@ -1,0 +1,33 @@
+meta {
+  name: Update Experience
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:6001/journey/15
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: 
+}
+
+body:json {
+  {
+        "title": "Updated new thing",
+        "diploma": null,
+        "from": "2015-07-01T00:00:00Z",
+        "to": null,
+        "tasks": [
+          {
+            "Details": "Dev things update"
+          },
+          {
+            "Details": "More dev things update"
+          }
+        ],
+        "experienceType": 2
+  }
+}
