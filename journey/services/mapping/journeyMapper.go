@@ -4,9 +4,9 @@ import journeyModels "portfolioAPI/journey/models"
 
 func MapJourneyDisplayModelToJourney(journeyUpsertModel *journeyModels.JourneyUpsertModel) []journeyModels.Experience {
 	var journeys []journeyModels.Experience
-	var tasks []journeyModels.Task
 
 	for _, translation := range journeyUpsertModel.JourneyTransaltions {
+		var tasks []journeyModels.Task
 		for _, task := range translation.Tasks {
 			tasks = append(tasks, MapTaskDisplayModelToTask(task))
 		}
