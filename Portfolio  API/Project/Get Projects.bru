@@ -1,15 +1,16 @@
 meta {
   name: Get Projects
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
-  url: http://localhost:6001/project
+  url: {{baseUrl}}project
   body: none
   auth: none
 }
 
 headers {
+  Accept-Language: en-US
   ~Origin: https://paul-wortmann.me
 }

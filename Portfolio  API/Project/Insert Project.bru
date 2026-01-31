@@ -1,0 +1,52 @@
+meta {
+  name: Insert Project
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}project
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept-Language: de-CH
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6IlBhdWwiLCJleHAiOjE3NjY2MDg0NjV9.DdLSKr5J5vMHsRmzcJPyvP5WHzFPfJmzF2cPmR-Wn9o
+}
+
+body:json {
+  {
+    "name": "Ethereum Bootcamp",
+    "about": "Dieser Kurs wurde von der Alchemy University veröffentlicht und vermittelte Kenntnisse zur Implementierung von Web3 und Blockchain-Technologien. Ich habe gelernt, wie man dApps erstellt und mit der Ethereum-Blockchain interagiert. Dabei habe ich mir fundierte Kenntnisse im Bereich des dezentralen Webs angeeignet und das angebotene Zertifikat erworben.",
+    "Github_Link": "https://github.com/TottySnowman/ETH_Bootcamp",
+    "Demo_Link": "",
+    "Logo_Path": "/logo/ETH_Logo.webp",
+    "DevDate": "2023-05-05T00:00:00Z",
+    "Hidden": false,
+    "Status": {
+        "StatusID": 3,
+        "Status": "Finished"
+      },
+  "Tags": [
+        {
+          "TagId": 6,
+          "Icon": "SiSolidity",
+          "Tag": "Solidity"
+        },
+        {
+          "TagId": 7,
+          "Icon": "SiHiveBlockchain",
+          "Tag": "Blockchain"
+        },
+        {
+          "TagId": 10,
+          "Icon": "SiJavascript",
+          "Tag": "JavaScript"
+        }
+      ]
+  }
+}

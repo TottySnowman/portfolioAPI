@@ -1,15 +1,15 @@
 meta {
   name: Get Journey
   type: http
-  seq: 17
+  seq: 12
 }
 
 get {
-  url: http://localhost:6001/journey
+  url: {{baseUrl}}journey
   body: none
   auth: none
 }
 
 headers {
-  : 
+  Accept-Language: de-CH
 }

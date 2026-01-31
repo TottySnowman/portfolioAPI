@@ -1,11 +1,11 @@
 meta {
   name: Create Tag
   type: http
-  seq: 10
+  seq: 5
 }
 
 post {
-  url: http://localhost:6001/tag
+  url: {{baseUrl}}tag
   body: json
   auth: bearer
 }

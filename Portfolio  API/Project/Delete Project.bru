@@ -1,11 +1,11 @@
 meta {
   name: Delete Project
   type: http
-  seq: 8
+  seq: 4
 }
 
 delete {
-  url: http://localhost:6001/project/2
+  url: {{baseUrl}}project/2
   body: none
   auth: bearer
 }
